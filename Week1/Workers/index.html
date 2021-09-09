@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<head>
+  <title>Blocking Demo</title>
+  <script
+    src="https://code.jquery.com/jquery-3.6.0.js"
+    integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"
+  ></script>
+</head>
+<body>
+  <input type="text" id="textbox" /><button id="getIt">Get Count</button>
+</body>
+<script>
+  "use script";
+  const isPrime = (n) => {
+    if (n < 2) return false;
+    for (let i = 2; i < n; i++) {
+      if (n % i == 0) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  let val = 1000000;
+  //let val = 100;
+  let count = 0;
+
+  $("#getIt").click(function () {
+    $("#textbox").val(count);
+  });
+
+  for (let i = 0; i < val; i++) {
+    let a = isPrime(i);
+
+    if (a) {
+      console.log(i);
+      count++;
+    }
+  }
+
+  console.log("count: " + count);
+</script>
