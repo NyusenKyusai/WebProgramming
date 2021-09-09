@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+    <title>localStorage Demo</title>
+</head>
+<body>
+
+</body>
+<script>
+    "use script";
+    localStorage.setItem("bar", "foo");
+    localStorage.setItem("inttest", 7);
+    let json = {
+        "array":[0,0,0,0,0,0,0],
+        "someval":60,
+        "someother": "stuff"
+    }
+
+    let jsonString = JSON.stringify(json);
+    console.log(json);
+    console.log(jsonString);
+    localStorage.setItem("jsontest", jsonString);
+
+    let jsontest = localStorage.getItem("jsontest");
+
+    console.log(jsontest);
+
+    let jsonobj = JSON.parse(jsontest);
+
+    console.log(jsonobj);
+
+    let myval = 3 + parseInt(localStorage.getItem("inttest"));
+
+    console.log(myval);
+
+    localStorage.removeItem("jsontest");
+
+    localStorage.clear();
+</script>
+</html>
