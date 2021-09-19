@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<head>
+    <title>Selection Demo</title>
+    <script
+    src="https://code.jquery.com/jquery-3.6.0.js"
+    integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous">
+  </script>
+</head>
+<body>
+    <ul>
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+    </ul>
+    <ul>
+        <li>Item a</li>
+        <li>Item b</li>
+        <li>Item c</li>
+    </ul>
+    <ol>
+       <li>Ordered Item a</li>
+       <li>Ordered Item b</li>
+       <li>Ordered Item c</li> 
+    </ol>
+</body>
+<script>
+    "use strict"
+    let allLI = $('li');
+
+    let getAllLi = document.querySelectorAll("li");
+
+    console.log(getAllLi);
+
+    console.log(allLI);
+
+    let ulLi = $("ul li");
+
+    console.log(ulLi);
+
+    let ulLiQuery = document.querySelectorAll("ul li");
+
+    console.log(ulLiQuery)
+</script>
+</html>
