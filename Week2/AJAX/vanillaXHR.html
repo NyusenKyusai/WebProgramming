@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<head>
+    <title>Ajax Demo</title>
+</head>
+<body>
+
+</body>
+<script>
+    "use script"
+    let XHR = new XMLHttpRequest();
+    let people;
+
+    XHR.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            people = JSON.parse(XHR.responseText);
+        } else if (this.readyState == 4 && this.status == 404) {
+            console.log("File not found");
+        }
+    }
+
+    XHR.open("GET", "./people.json", true);
+    XHR.send();
+</script>
+</html>

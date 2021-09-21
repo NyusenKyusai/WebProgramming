@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<head>
+<title>Traversing / Animation Demo</title>
+<script
+    src="https://code.jquery.com/jquery-3.6.0.js"
+    integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous">
+</script>
+<style>
+    body {
+        color: #fff;
+        font-size: 40px;
+    }
+
+    div {
+        position: absolute;
+        width: 800px;
+        height: 600px;
+    }
+
+    #splash {
+        display: block;
+        background-color: red;
+    }
+
+    #game {
+        display: none;
+        background-color: aqua;
+    }
+
+    #hiscores {
+        display: none;
+        background-color: blueviolet;
+    }
+
+    #about {
+        display: none;
+        background-color: coral;
+    }
+</style>
+</head>
+<body>
+    <main id="main">
+        <div id="splash">Splash</div>
+        <div id="game">Game</div>
+        <div id="hiscores">High Scores</div>
+        <div id="about">About this game</div>
+    </main>
+</body>
+<script>
+    "use strict";
+
+    $("#main div").each((index, item) => {
+        let nextItem = (index + 1) % $("#main div").length;
+
+        $(item).click((e) => {
+            $(item).fadeOut(1000, () => {
+                console.log("pog");
+            });
+
+            if (nextItem == 0) {
+                $(item).siblings().first().fadeIn(1000);
+            } else {
+                $(item).next().fadeIn(1000);
+            }
+        })
+    });
+
+    // let mainChildren = Array.from(document.getElementById("main").children);
+    
+    // mainChildren.forEach((item, itemIndex) => {
+    //     item.addEventListener("click", (e) => {
+    //         e.target.style.display = "none";
+
+    //         let nextItem = (itemIndex + 1) % mainChildren.length;
+
+    //         mainChildren[nextItem].style.display = "block";
+            
+    //     });
+    // })
+</script>
+</html>
