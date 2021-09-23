@@ -13,12 +13,13 @@
     XHR.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             people = JSON.parse(XHR.responseText);
+            console.log(people);
         } else if (this.readyState == 4 && this.status == 404) {
             console.log("File not found");
         }
     }
 
-    XHR.open("GET", "./people.json", true);
+    XHR.open("GET", "./phpexample.php", true);
     XHR.send();
 </script>
 </html>
