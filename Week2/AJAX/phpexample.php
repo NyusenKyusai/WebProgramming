@@ -1,4 +1,7 @@
 <?php
+
+$values = $_GET("variable");
+
 $people = array(
     ["id" => 1,
     "name" => "Ian"],
@@ -6,5 +9,5 @@ $people = array(
     "name" => "Derek"]
 );
 
-echo json_encode($people);
+//echo $values;
 ?>
