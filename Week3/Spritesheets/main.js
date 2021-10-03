@@ -14,6 +14,12 @@ let b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
 let b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 let b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
+/**
+ * EaselJS Global Things
+ */
+
+let easelCan, easelCTX, loader, stage, stageHeight, stageWidth;
+
 /*****
  * Objects for Destruction
  */
@@ -83,16 +89,135 @@ let changeUserData = (target, property, newValue) => {
 
   target.GetBody().SetUserData(currentData);
 
-  console.log(target.GetBody().GetUserData());
+  //console.log(target.GetBody().GetUserData());
+};
+
+const tick = (e) => {
+  update();
+  stage.update(e);
+};
+
+const makeHorizontalTile = (loaderImg, fillWidth, tileWidth) => {
+  let theRect = new createjs.Shape();
+  theRect.graphics
+    .beginBitmapFill(loaderImg)
+    .drawRect(0, 0, fillWidth + loaderImg.width, loaderImg.height);
+  theRect.tileW = tileWidth;
+  theRect.snapToPixel = true;
+
+  return theRect;
+};
+
+const handleComplete = () => {
+  easelSky = makeBitmap(loader.getResult("sky"), stageWidth, stageHeight);
+  easelSky.x = 0;
+  easelSky.y = 0;
+
+  let hill1Img = loader.getResult("hill1");
+  let hill2Img = loader.getResult("hill2");
+
+  let groundImg = loader.getResult("ground");
+
+  easelHill1 = makeBitmap(hill1Img, hill1Img.width, hill1Img.height);
+  easelHill1.x = Math.random() * stageWidth;
+  easelHill1.y = HEIGHT - easelHill1.image.height - groundImg.height;
+
+  easelHill2 = makeBitmap(hill2Img, hill2Img.width, hill2Img.height);
+  easelHill2.x = Math.random() * stageWidth;
+  easelHill2.y = HEIGHT - easelHill2.image.height - groundImg.height;
+
+  easelGround = makeHorizontalTile(groundImg, stageWidth, 81);
+  easelGround.x = 0;
+  easelGround.y = HEIGHT - groundImg.height;
+
+  // prettier-ignore
+  let spritesheet = new createjs.SpriteSheet({
+    framerate: 30,
+    "images": [loader.getResult("grant")],
+    "frames": {
+      "regX": 82, "regY": 144,
+      "width": 165, "height": 292,
+      "count": 64
+    },
+    "animations": {
+      "stand": [56, 57, "stand", 1],
+      "run": [0, 25, "run", 1.5],
+      "jump": [26, 63, "stand", 1]
+    }
+  });
+
+  easelGrant = new createjs.Sprite(spritesheet, "stand");
+  easelGrant.snapToPixel = true;
+
+  stage.addChild(easelSky, easelHill1, easelHill2, easelGround, easelGrant);
+
+  createjs.Ticker.framerate = 60;
+  createjs.Ticker.timingMode = createjs.Ticker.RAF;
+  createjs.Ticker.addEventListener("tick", tick);
+};
+
+/**
+ * EaselJS Helpers
+ */
+
+const makeBitmap = (loaderImg, b2x, b2y) => {
+  let theImage = new createjs.Bitmap(loaderImg);
+
+  let scaleX = (b2x * 2) / theImage.image.naturalWidth;
+  let scaleY = (b2y * 2) / theImage.image.naturalHeight;
+
+  theImage.scaleX = scaleX;
+  theImage.scaleY = scaleY;
+
+  theImage.regX = theImage.image.width / 2;
+  theImage.regY = theImage.image.height / 2;
+
+  return theImage;
+};
+
+let goLeft = () => {
+  if (!keydown) {
+    easelGrant.gotoAndPlay("run");
+    easelGrant.scaleX = -1;
+  }
+
+  b2grant
+    .GetBody()
+    .SetLinearVelocity(new b2Vec2(-4, b2grant.GetBody().GetLinearVelocity().y));
+};
+
+let goRight = () => {
+  if (!keydown) {
+    easelGrant.gotoAndPlay("run");
+    easelGrant.scaleX = 1;
+  }
+
+  b2grant
+    .GetBody()
+    .SetLinearVelocity(new b2Vec2(4, b2grant.GetBody().GetLinearVelocity().y));
+};
+
+let stopLefRight = () => {
+  easelGrant.gotoAndPlay("stand");
+
+  b2grant
+    .GetBody()
+    .SetLinearVelocity(new b2Vec2(0, b2grant.GetBody().GetLinearVelocity().y));
+};
+
+let doJump = () => {
+  easelGrant.gotoAndPlay("jump");
+
+  b2grant
+    .GetBody()
+    .SetLinearVelocity(
+      new b2Vec2(b2grant.GetBody().GetLinearVelocity().x, -10)
+    );
 };
 
 /****
  * Our World Objects
  */
-
-let fireBird = false;
-let startX, startY;
-let score = 0;
 
 // Static
 let ground = defineNewBody(
@@ -102,60 +227,61 @@ let ground = defineNewBody(
   WIDTH / 2,
   HEIGHT,
   WIDTH / 2,
-  5,
+  80,
   "ground",
   "static"
 );
 
-let post = defineNewBody(1.0, 0.5, 0.1, 70, 575, 5, 30, "post", "static");
-
-// Structures
-let platformData = [
-  [1.0, 0.5, 0.1, 600, 575, 5, 70, "plat", "dynamic"],
-  [1.0, 0.5, 0.1, 700, 575, 5, 70, "plat", "dynamic"],
-  [1.0, 0.5, 0.1, 650, 450, 70, 5, "plat", "dynamic"],
-  [1.0, 0.5, 0.1, 650, 395, 5, 50, "plat", "dynamic"],
-  [1.0, 0.5, 0.1, 650, 339, 70, 5, "plat", "dynamic"],
-];
-
-let platforms = [];
-
-platformData.forEach((platform) => {
-  platforms.push(defineNewBody(...platform));
-});
-
-// Pigs
-
-let pigData = [
-  [1.0, 0.5, 0.1, 600, 430, 10, "pig"],
-  [1.0, 0.5, 0.1, 700, 430, 10, "pig"],
-  [1.0, 0.5, 0.1, 600, 320, 10, "pig"],
-  [1.0, 0.5, 0.1, 700, 320, 10, "pig"],
-];
-
-let pigs = [];
-
-pigData.forEach((pig) => {
-  pigs.push(defineNewCircle(...pig));
-  changeUserData(pigs[pigs.length - 1], "health", 20);
-});
-
 // Dynamic
 
-let angryBird = defineNewCircle(1.0, 0.5, 0.1, 70, 520, 20, "angrybird");
+let b2grant = defineNewBody(
+  1.0,
+  0,
+  0.1,
+  70,
+  200,
+  72,
+  140,
+  "angrybird",
+  "dynamic"
+);
 
-/*
+b2grant.GetBody().IsFixedRotation = true;
+
+let easelGround, easelHill1, easelHill2, easelGrant, easelSky;
+
+const init = () => {
+  easelCan = document.getElementById("easelcan");
+  easelCTX = easelCan.getContext("2d");
+  stage = new createjs.Stage(easelCan);
+  stage.snapPixelsEnabled = true;
+  stageWidth = stage.canvas.width;
+  stageHeight = stage.canvas.height;
+
+  let manifest = [
+    { src: "ground.png", id: "ground" },
+    { src: "sky.png", id: "sky" },
+    { src: "hill1.png", id: "hill1" },
+    { src: "hill2.png", id: "hill2" },
+    { src: "spritesheet_grant.png", id: "grant" },
+  ];
+
+  loader = new createjs.LoadQueue(false);
+  loader.addEventListener("complete", handleComplete);
+  loader.loadManifest(manifest, true, "./assets/");
+
+  /*
 Debug Draw
 */
 
-let debugDraw = new b2DebugDraw();
-debugDraw.SetSprite(document.getElementById("b2dcan").getContext("2d"));
-debugDraw.SetDrawScale(SCALE);
-debugDraw.SetFillAlpha(0.3);
-debugDraw.SetLineThickness(1.0);
-debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-world.SetDebugDraw(debugDraw);
-
+  let debugDraw = new b2DebugDraw();
+  debugDraw.SetSprite(document.getElementById("b2dcan").getContext("2d"));
+  debugDraw.SetDrawScale(SCALE);
+  debugDraw.SetFillAlpha(0.3);
+  debugDraw.SetLineThickness(1.0);
+  debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+  world.SetDebugDraw(debugDraw);
+};
 // Update World Loop
 
 let update = () => {
@@ -163,19 +289,19 @@ let update = () => {
   world.DrawDebugData();
   world.ClearForces();
 
+  easelGrant.x = b2grant.GetBody().GetPosition().x * SCALE;
+  easelGrant.y = b2grant.GetBody().GetPosition().y * SCALE;
+
   for (let i in destroyList) {
-    if ((destroyList[i].GetUserData().id = "pig")) {
-      score += 30;
-      $("#score").html(score);
-    }
     world.DestroyBody(destroyList[i]);
   }
   destroyList.length = 0;
 
-  window.requestAnimationFrame(update);
+  //window.requestAnimationFrame(update);
 };
 
-window.requestAnimationFrame(update);
+//window.requestAnimationFrame(update);
+init();
 
 /*****
  * Listeners
@@ -193,33 +319,6 @@ listener.PostSolve = function (contact, impulse) {
   //   console.log(
   //     fixA + " hits " + fixB + "with impulse " + impulse.normalImpulses[0]
   //   );
-
-  let fixA = contact.GetFixtureA().GetBody().GetUserData();
-  let fixB = contact.GetFixtureB().GetBody().GetUserData();
-
-  let isPig = false;
-
-  if (fixA.id == "pig") {
-    isPig = contact.GetFixtureA();
-  }
-
-  if (fixB.id == "pig") {
-    isPig = contact.GetFixtureB();
-  }
-
-  if (isPig != false) {
-    if (impulse.normalImpulses[0] > 0.5) {
-      let currentHealth = isPig.GetBody().GetUserData().health;
-
-      currentHealth -= impulse.normalImpulses[0] * 5;
-
-      if (currentHealth <= 0) {
-        destroyList.push(isPig.GetBody());
-      } else {
-        changeUserData(isPig, "health", currentHealth);
-      }
-    }
-  }
 };
 listener.PreSolve = function (contact, oldManifold) {};
 world.SetContactListener(listener);
@@ -228,58 +327,51 @@ world.SetContactListener(listener);
  * Keyboard Controls
  */
 
+let keydown = false;
+
+$(document).keydown(function (e) {
+  if (e.keyCode == 65 || e.keyCode == 37) {
+    console.log("left down");
+    goLeft();
+
+    keydown = true;
+  }
+  if (e.keyCode == 68 || e.keyCode == 39) {
+    console.log("right down");
+    goRight();
+
+    keydown = true;
+  }
+  if (e.keyCode == 87 || e.keyCode == 38) {
+    console.log("up down");
+    doJump();
+  }
+  if (e.keyCode == 83 || e.keyCode == 40) {
+    console.log("down down");
+  }
+});
+
+$(document).keyup(function (e) {
+  if (e.keyCode == 65 || e.keyCode == 37) {
+    console.log("left up");
+
+    stopLefRight();
+    keydown = false;
+  }
+  if (e.keyCode == 68 || e.keyCode == 39) {
+    console.log("right up");
+
+    stopLefRight();
+    keydown = false;
+  }
+  if (e.keyCode == 87 || e.keyCode == 38) {
+    console.log("up up");
+  }
+  if (e.keyCode == 83 || e.keyCode == 40) {
+    console.log("down up");
+  }
+});
+
 /*****
  * Mouse Controls
  */
-
-$("#b2dcan").mousedown(function (e) {
-  // (x1 - x2)**2 + (y1 - y2)**2 <= radius**2
-  let bodyX = angryBird.GetBody().GetPosition().x * SCALE;
-  let bodyY = angryBird.GetBody().GetPosition().y * SCALE;
-  let radius = 20;
-  let clickX = e.offsetX;
-  let clickY = e.offsetY;
-  let relativePosition = (clickX - bodyX) ** 2 + (clickY - bodyY) ** 2;
-
-  if (relativePosition <= radius ** 2) {
-    fireBird = true;
-
-    startX = clickX;
-    startY = clickY;
-  }
-});
-
-$("#b2dcan").mouseup(function (e) {
-  if (fireBird) {
-    let endX = e.offsetX;
-    let endY = e.offsetY;
-
-    // prettier-ignore
-    let magnitude = Math.sqrt(((endX - startX) ** 2) + ((endY - startY) ** 2));
-    let direction = Math.atan((endY - startY) / (endX - startX));
-
-    console.log(magnitude);
-
-    let xVector = Math.cos(direction) * magnitude;
-    if (endX > startX) {
-      xVector = xVector * -1;
-    }
-
-    let yVector = Math.sin(direction) * magnitude;
-
-    // if (endY < startY) {
-    //   yVector = yVector * -1;
-    // }
-
-    console.log("xVec = " + xVector + " yVec = " + yVector);
-
-    angryBird
-      .GetBody()
-      .ApplyImpulse(
-        new b2Vec2(xVector, yVector),
-        angryBird.GetBody().GetWorldCenter()
-      );
-
-    fireBird = false;
-  }
-});
