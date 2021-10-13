@@ -19,6 +19,10 @@
             $this->setPost();
         }
 
+        public function setBasicAuth($cid, $secret) {
+            curl_setopt($this->curl, CURLOPT_USERPWD, $cid . ":" . $secret);
+        }
+
         public function setHeader($header) {
             curl_setopt($this->curl, CURLOPT_HTTPHEADER, $header);
         }
@@ -118,6 +122,63 @@
         }
     }
 
+    class OAuthGitHub extends OAuth {
+        public function getName() {
+            return $this->userInfo->login;
+        }
+
+        public function getAvatar() {
+            return "https://avatars.githubusercontent.com/u/" . $this->getUserId() . "?v=4";
+        }
+    }
+
+    class OAuthReddit extends OAuth {
+        public function getAuth($code) {
+            $curl = new CurlHandler($this->tokenURL);
+
+            $headers[] = "Accept: application/json";
+            $curl->setHeader($headers);
+
+            $curl->setBasicAuth($this->cid, $this->secret);
+
+            $params = array(
+                "grant_type" => "authorization_code",
+                "redirect_uri" => REDIRECTTOKENURI,
+                "code" => $code
+            );
+
+            $curl->setQuery($params);
+            $result = json_decode($curl->runCURL());
+
+            //var_dump($result);
+
+            return $result;
+        }
+
+        public function login() {
+            $randomstr = md5(rand());
+
+            $params = array(
+                "client_id" => $this->cid,
+                "redirect_uri" => REDIRECTURI,
+                "response_type" => "code",
+                "scope" => $this->scope,
+                "state" => $randomstr
+            );
+
+            header('Location: ' . $this->authURL . '?' . http_build_query($params));
+            die();
+        }
+
+        public function getName() {
+            return $this->userInfo->name;
+        }
+
+        public function getAvatar() {
+            return $this->userInfo->icon_img;
+        }
+    }
+
     class ProviderHandler {
         public $providerList = [];
 
@@ -193,6 +254,7 @@
         }
 
         public function processToken() {
+            $this->status = "logged in";
             $this->providerInstance->getAuthConfirm($this->getSessionValue("access_token"));
         }
 

@@ -21,23 +21,23 @@
         [
             "providerName" => "GitHub",
             "data" => [
-                "authURL" => "",
-                "tokenURL" => "",
-                "apiURL" => "",
-                "revokeURL" => "",
-                "scope" => "",
-                "class" => "OAuth"
+                "authURL" => "https://github.com/login/oauth/authorize",
+                "tokenURL" => "https://github.com/login/oauth/access_token",
+                "apiURL" => "https://api.github.com/user",
+                "revokeURL" => "https://github.com/applications/########/grant",
+                "scope" => "user",
+                "class" => "OAuthGitHub"
             ]
         ],
         [
             "providerName" => "Reddit",
             "data" => [
-                "authURL" => "",
-                "tokenURL" => "",
-                "apiURL" => "",
-                "revokeURL" => "",
-                "scope" => "",
-                "class" => "OAuth"
+                "authURL" => "https://www.reddit.com/api/v1/authorize",
+                "tokenURL" => "https://www.reddit.com/api/v1/access_token",
+                "apiURL" => "https://oauth.reddit.com/api/v1/me",
+                "revokeURL" => "https://www.reddit.com/api/v1/revoke_token",
+                "scope" => "identity",
+                "class" => "OAuthReddit"
             ]
         ],
     );

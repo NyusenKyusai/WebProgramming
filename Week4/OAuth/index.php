@@ -10,6 +10,8 @@
 
     $handler = new ProviderHandler();
     $handler->addProvider("Discord", "896813766199623691", "aQkRp6pNX38cPGJrO3cKJFqe5qK0G06o");
+    $handler->addProvider("GitHub", "d3ca7278fd708fbd107a", "fffef7faacbdad87502e388524a9587fd968c158");
+    $handler->addProvider("Reddit", "zrDCWxIleBDANuU30Bx27Q", "W4LSmHGrkIYGzs25qtv7jXnkGKSbWw");
 
     $handler->performAction();
     //var_dump($handler);
@@ -20,9 +22,7 @@
     <?php
         if ($handler->status == "logged out" || $handler->status == null) {
             echo $handler->generateLoginText();
-        }
-
-        if ($handler->status != "logged out") {
+        }else if ($handler->status != "logged out") {
             echo $handler->generateLogout();
         }
         
