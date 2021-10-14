@@ -1,0 +1,22 @@
+[
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 400, 600, 500, 5, "ground", "ground", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 0, 0, 5, 900, "wall", "wall", 0]
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0, 0.1, 70, 540, 20, 60, "player", "player"]
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 700, 540, 20, 60, "orc", "orc1"]
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 500, 540, 20, 60, "orc", "orc2"]
+  }
+]

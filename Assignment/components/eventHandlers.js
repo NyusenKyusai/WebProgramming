@@ -22,9 +22,11 @@ class mouseHandler {
  */
 
 class keyboardHandler {
-  constructor(target, type, runFunction) {
-    target.addEventListener(type, (e) => {
+  constructor(type, runFunction) {
+    document.addEventListener(type, (e) => {
       runFunction(e);
     });
   }
 }
+
+export { b2Listener, mouseHandler, keyboardHandler };

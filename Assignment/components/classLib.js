@@ -1,8 +1,10 @@
+import * as shortcut from "./shortcuts.js";
+
 class defineBody {
   userdata = {};
   uniquename;
-  fixDef = new b2FixtureDef();
-  bodyDef = new b2BodyDef();
+  fixDef = new shortcut.b2FixtureDef();
+  bodyDef = new shortcut.b2BodyDef();
   b2dobj;
   constructor(density, friction, restitution, x, y, scale) {
     this.fixDef.density = density;
@@ -45,9 +47,9 @@ class defineSB extends defineBody {
     world
   ) {
     super(density, friction, restitution, x, y, scale, world);
-    this.bodyDef.type = b2Body.b2_staticBody;
+    this.bodyDef.type = shortcut.b2Body.b2_staticBody;
     this.bodyDef.angle = angle;
-    this.fixDef.shape = new b2PolygonShape();
+    this.fixDef.shape = new shortcut.b2PolygonShape();
     this.fixDef.shape.SetAsBox(width / scale, height / scale);
     this.createObj(world);
     this.changeUserData("id", objid);
@@ -70,8 +72,8 @@ class defineDB extends defineBody {
     world
   ) {
     super(density, friction, restitution, x, y, scale, world);
-    this.bodyDef.type = b2Body.b2_dynamicBody;
-    this.fixDef.shape = new b2PolygonShape();
+    this.bodyDef.type = shortcut.b2Body.b2_dynamicBody;
+    this.fixDef.shape = new shortcut.b2PolygonShape();
     this.fixDef.shape.SetAsBox(width / scale, height / scale);
     this.createObj(world);
     this.changeUserData("id", objid);
@@ -93,10 +95,12 @@ class defineDCB extends defineBody {
     world
   ) {
     super(density, friction, restitution, x, y, scale, world);
-    this.bodyDef.type = b2Body.b2_dynamicBody;
-    this.fixDef.shape = new b2CircleShape(r / scale);
+    this.bodyDef.type = shortcut.b2Body.b2_dynamicBody;
+    this.fixDef.shape = new shortcut.b2CircleShape(r / scale);
     this.createObj(world);
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
   }
 }
+
+export { defineSB, defineDB, defineDCB };
