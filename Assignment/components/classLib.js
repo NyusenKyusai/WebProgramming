@@ -44,7 +44,8 @@ class defineSB extends defineBody {
     uniquename,
     angle,
     scale,
-    world
+    world,
+    level
   ) {
     super(density, friction, restitution, x, y, scale, world);
     this.bodyDef.type = shortcut.b2Body.b2_staticBody;
@@ -54,6 +55,7 @@ class defineSB extends defineBody {
     this.createObj(world);
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
+    this.changeUserData("level", level);
   }
 }
 
@@ -69,7 +71,8 @@ class defineDB extends defineBody {
     objid,
     uniquename,
     scale,
-    world
+    world,
+    level
   ) {
     super(density, friction, restitution, x, y, scale, world);
     this.bodyDef.type = shortcut.b2Body.b2_dynamicBody;
@@ -78,6 +81,7 @@ class defineDB extends defineBody {
     this.createObj(world);
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
+    this.changeUserData("level", level);
   }
 }
 

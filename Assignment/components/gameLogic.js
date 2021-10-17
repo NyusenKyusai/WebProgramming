@@ -12,6 +12,11 @@ class Game {
   document;
   b2dctx;
   world;
+  gameStart = true;
+  allowMove = true;
+  invisible = false;
+  collisionList = ["wall", "ground", "sensor"];
+  currentLevel = 1;
   itemList = [];
   destroylist = [];
   keyboardHandler = [];
@@ -76,44 +81,59 @@ class Game {
     this.destroyList.length = 0;
   };
 
-  getData = (datasource) => {
+  getData = (datasource, level) => {
     let XHR = new XMLHttpRequest();
     XHR.onreadystatechange = () => {
       if (XHR.readyState == 4 && XHR.status == 200) {
         let gamedata = JSON.parse(XHR.responseText);
         gamedata.forEach((item) => {
-          switch (item.type) {
-            case "static":
-              this.addItem(
-                new defineSB(...item.objdata, this.scale, this.world),
-                item.type
-              );
-              break;
-            case "dynamic":
-              this.addItem(
-                new defineDB(...item.objdata, this.scale, this.world),
-                item.type
-              );
-              break;
-            case "dynamiccircle":
-              this.addItem(
-                new defineDCB(...item.objdata, this.scale, this.world),
-                item.type
-              );
-              break;
-            default:
-              console.log("Item type not recognised");
-          }
-          if (typeof item.userdata == "object") {
-            for (let key in item.userdata) {
-              this.itemList[this.itemList.length - 1].changeUserData(
-                key,
-                item.userdata[key]
-              );
+          if (item.level == level || item.level == 0) {
+            switch (item.type) {
+              case "static":
+                this.addItem(
+                  new defineSB(
+                    ...item.objdata,
+                    this.scale,
+                    this.world,
+                    item.level
+                  ),
+                  item.type
+                );
+                break;
+              case "dynamic":
+                this.addItem(
+                  new defineDB(
+                    ...item.objdata,
+                    this.scale,
+                    this.world,
+                    item.level
+                  ),
+                  item.type
+                );
+                break;
+              case "dynamiccircle":
+                this.addItem(
+                  new defineDCB(...item.objdata, this.scale, this.world),
+                  item.type
+                );
+                break;
+              default:
+                console.log("Item type not recognised");
+            }
+            if (typeof item.userdata == "object") {
+              for (let key in item.userdata) {
+                this.itemList[this.itemList.length - 1].changeUserData(
+                  key,
+                  item.userdata[key]
+                );
+              }
             }
           }
         });
-        this.update();
+        if (this.gameStart) {
+          this.update();
+          this.gameStart = false;
+        }
       }
     };
     XHR.open("GET", datasource, true);
@@ -137,9 +157,15 @@ class Game {
   handleKeyUp = (e) => {
     console.log(e);
   };
+
+  increaseLevel = () => {
+    this.currentLevel++;
+  };
 }
 
 class LoZGame extends Game {
+  slimeTimer = true;
+
   destroyList = () => {
     for (let i in this.destroylist) {
       this.world.DestroyBody(this.destroylist[i]);
@@ -147,11 +173,32 @@ class LoZGame extends Game {
     this.destroylist.length = 0;
   };
 
+  spawn = (uniquename) => {
+    switch (uniquename) {
+      case "sensor1":
+        this.getData("./components/gameData.json", 2);
+        break;
+      case "sensor2":
+        this.getData("./components/gameData.json", 1);
+        break;
+      case "sensor3":
+        this.getData("./components/gameData.json", 3);
+        break;
+      case "sensor4":
+        this.getData("./components/gameData.json", 2);
+        break;
+    }
+  };
+
   getEnemy = () => {
     let enemyArray = [];
 
     for (let item in this.itemList) {
-      if (this.itemList[item].userdata.id == "orc") {
+      if (
+        this.itemList[item].userdata.id == "orc" ||
+        this.itemList[item].userdata.id == "slime" ||
+        this.itemList[item].userdata.id == "boss"
+      ) {
         enemyArray.push(this.itemList[item]);
 
         //console.log(item);
@@ -161,51 +208,81 @@ class LoZGame extends Game {
     return enemyArray;
   };
 
-  gameLogic = () => {
-    let playerPosition = this.getPlayer().GetBody().GetWorldCenter().x;
-    let enemyArray = this.getEnemy();
+  getDistance = (player, enemy) => {
+    let distance =
+      player.GetBody().GetWorldCenter().x - enemy.GetBody().GetWorldCenter().x;
+
+    return distance;
+  };
+
+  getDirection = (distance) => {
     let direction = 0;
 
-    //console.log(playerPosition.x);
+    if (distance > 1) {
+      direction = 1;
+    } else if (distance < -1) {
+      direction = -1;
+    }
+
+    return direction;
+  };
+
+  applyImpulse = (direction, fixture, x, y) => {
+    fixture
+      .GetBody()
+      .ApplyImpulse(
+        new shortcut.b2Vec2(x * direction, y),
+        fixture.GetBody().GetWorldCenter()
+      );
+  };
+
+  enemyMove = (enemy, direction) => {
+    let self = this;
+
+    switch (enemy.userdata.id) {
+      case "orc":
+        this.applyImpulse(direction, enemy, 3, 0);
+        break;
+      case "slime":
+        // if (this.slimeTimer == true) {
+        this.applyImpulse(direction, enemy, 3, -10);
+
+        //   this.slimeTimer = false;
+        // }
+
+        // setInterval(function () {
+        //   self.slimeTimer = true;
+        // }, 5000);
+
+        break;
+      case "boss":
+        this.applyImpulse(direction, enemy, 3, 0);
+        break;
+    }
+  };
+
+  gameLogic = () => {
+    let player = this.getPlayer();
+    let enemyArray = this.getEnemy();
 
     for (let enemy in enemyArray) {
-      let distance =
-        playerPosition - enemyArray[enemy].GetBody().GetWorldCenter().x;
+      let distance = this.getDistance(player, enemyArray[enemy]);
 
-      //console.log(distance);
-
-      if (distance > 1) {
-        direction = 1;
-      } else if (distance < -1) {
-        direction = -1;
-      }
-
-      //console.log(enemyArray[enemy].GetBody().GetLinearVelocity().x);
-      //console.log(playerPosition);
+      let direction = this.getDirection(distance);
 
       if (direction == -1) {
         if (
           enemyArray[enemy].GetBody().GetLinearVelocity().x > -1 &&
           enemyArray[enemy].GetBody().GetLinearVelocity().x <= 0
         ) {
-          enemyArray[enemy]
-            .GetBody()
-            .ApplyImpulse(
-              new shortcut.b2Vec2(2 * direction, 0),
-              enemyArray[enemy].GetBody().GetWorldCenter()
-            );
+          this.enemyMove(enemyArray[enemy], direction);
         }
       } else if (direction == 1) {
         if (
           enemyArray[enemy].GetBody().GetLinearVelocity().x < 1 &&
           enemyArray[enemy].GetBody().GetLinearVelocity().x >= 0
         ) {
-          enemyArray[enemy]
-            .GetBody()
-            .ApplyImpulse(
-              new shortcut.b2Vec2(2 * direction, 0),
-              enemyArray[enemy].GetBody().GetWorldCenter()
-            );
+          this.enemyMove(enemyArray[enemy], direction);
         }
       }
 
@@ -213,6 +290,18 @@ class LoZGame extends Game {
     }
 
     //console.log(enemyArray);
+  };
+
+  getLinearX = (body) => {
+    return body.GetBody().GetLinearVelocity().x;
+  };
+
+  getLinearY = (body) => {
+    return body.GetBody().GetLinearVelocity().y;
+  };
+
+  setLinearVelocity = (body, x, y) => {
+    body.GetBody().SetLinearVelocity(new shortcut.b2Vec2(x, y));
   };
 
   getPlayer = () => {
@@ -227,27 +316,31 @@ class LoZGame extends Game {
     return player;
   };
 
+  getInvisible = () => {
+    return this.invisible;
+  };
+
+  getAllowMove = () => {
+    return this.allowMove;
+  };
+
+  setInvisible = (boolean) => {
+    this.invisible = boolean;
+  };
+
+  setAllowMove = (boolean) => {
+    this.allowMove = boolean;
+  };
+
   move = (keyCode) => {
     let player = this.getPlayer();
 
-    if (keyCode == 65) {
-      player
-        .GetBody()
-        .SetLinearVelocity(
-          new shortcut.b2Vec2(-4, player.GetBody().GetLinearVelocity().y)
-        );
-    } else if (keyCode == 68) {
-      player
-        .GetBody()
-        .SetLinearVelocity(
-          new shortcut.b2Vec2(4, player.GetBody().GetLinearVelocity().y)
-        );
-    } else if (keyCode == 32) {
-      player
-        .GetBody()
-        .SetLinearVelocity(
-          new shortcut.b2Vec2(player.GetBody().GetLinearVelocity().x, -5)
-        );
+    if (keyCode == 65 && this.allowMove) {
+      this.setLinearVelocity(player, -4, this.getLinearY(player));
+    } else if (keyCode == 68 && this.allowMove) {
+      this.setLinearVelocity(player, 4, this.getLinearY(player));
+    } else if (keyCode == 32 && this.allowMove) {
+      this.setLinearVelocity(player, this.getLinearX(player), -5);
     }
   };
 

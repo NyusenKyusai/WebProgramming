@@ -1,53 +1,102 @@
 import * as handlers from "./components/eventHandlers.js";
 import LoZGame from "./components/gameLogic.js";
 
-let mygame = new LoZGame(600, 900, 30, 0, 9.81, 60, "b2dcan");
+let mygame = new LoZGame(600, 1800, 30, 0, 9.81, 60, "b2dcan");
 mygame.setupDebugDraw();
-mygame.getData("./components/gameData.json");
+mygame.getData("./components/gameData.json", 1);
 
 mygame.addKeyboardHandler("keydown", mygame.handleKeyDown);
 mygame.addKeyboardHandler("keyup", mygame.handleKeyUp);
 
-let AngryContact = handlers.b2Listener;
+let LoZContact = handlers.b2Listener;
 
-AngryContact.PostSolve = (contact, impulse) => {
+LoZContact.PostSolve = (contact, impulse) => {
   let fixA = contact.GetFixtureA().GetBody().GetUserData();
   let fixB = contact.GetFixtureB().GetBody().GetUserData();
 
-  let isPig = false;
-  let pigparent;
+  let isPlayer = false;
+  let otherCollision = false;
+  let playerUserData;
 
-  if (fixA.id == "pig") {
-    isPig = contact.GetFixtureA();
+  if (fixA.id == "player" && !mygame.collisionList.includes(fixB.id)) {
+    isPlayer = contact.GetFixtureA();
+    otherCollision = contact.GetFixtureB();
     mygame.itemList.forEach((item) => {
       if (item.userdata.uniquename == fixA.uniquename) {
-        pigparent = item;
+        playerUserData = item;
       }
     });
   }
 
-  if (fixB.id == "pig") {
-    isPig = contact.GetFixtureB();
+  if (fixB.id == "player" && !mygame.collisionList.includes(fixA.id)) {
+    otherCollision = contact.GetFixtureA();
+    isPlayer = contact.GetFixtureB();
     mygame.itemList.forEach((item) => {
       if (item.userdata.uniquename == fixB.uniquename) {
-        pigparent = item;
+        playerUserData = item;
       }
     });
   }
 
-  if (isPig != false) {
-    if (impulse.normalImpulses[0] > 0.5) {
-      let currentHealth = isPig.GetBody().GetUserData().health;
+  if (fixA.id == "player" && fixB.id == "sensor") {
+    mygame.itemList.forEach((item) => {
+      mygame.destroylist.push(item.GetBody());
+    });
 
-      currentHealth -= impulse.normalImpulses[0] * 5;
+    mygame.itemList.length = 0;
+
+    mygame.spawn(fixB.uniquename);
+    //mygame.getData("./components/gameData.json", 2);
+  }
+
+  if (fixB.id == "player" && fixA.id == "sensor") {
+    mygame.itemList.forEach((item) => {
+      mygame.destroylist.push(item.GetBody());
+    });
+
+    mygame.itemList.length = 0;
+
+    mygame.spawn(fixA.uniquename);
+    //mygame.getData("./components/gameData.json", 2);
+  }
+
+  //console.log(mygame.getInvisible());
+
+  if (isPlayer != false) {
+    if (!mygame.getInvisible() && impulse.normalImpulses[0] > 0) {
+      let currentHealth = isPlayer.GetBody().GetUserData().health;
+
+      currentHealth -= 1;
+
+      //console.log(otherCollision.GetBody());
+
+      mygame.setInvisible(true);
+      mygame.setAllowMove(false);
+
+      let distance = mygame.getDistance(isPlayer, otherCollision);
+      let direction = mygame.getDirection(distance);
+
+      //console.log(direction);
+
+      mygame.setLinearVelocity(isPlayer, 0, 0);
+
+      mygame.applyImpulse(direction, isPlayer, 10, -25);
+
+      setInterval(function () {
+        mygame.setInvisible(false);
+      }, 1000);
+
+      setInterval(function () {
+        mygame.setAllowMove(true);
+      }, 300);
 
       if (currentHealth <= 0) {
-        mygame.destroylist.push(isPig.GetBody());
+        window.location.href = "gameOver.php";
       } else {
-        pigparent.changeUserData("health", currentHealth);
+        playerUserData.changeUserData("health", currentHealth);
       }
     }
   }
 };
 
-mygame.world.SetContactListener(AngryContact);
+mygame.world.SetContactListener(LoZContact);

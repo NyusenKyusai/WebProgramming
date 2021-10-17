@@ -1,22 +1,98 @@
 [
   {
     "type": "static",
-    "objdata": [1.0, 0.5, 0.2, 400, 600, 500, 5, "ground", "ground", 0]
+    "objdata": [1.0, 0.5, 0.2, 400, 600, 1800, 5, "ground", "ground", 0],
+    "level": 1
   },
   {
     "type": "static",
-    "objdata": [1.0, 0.5, 0.2, 0, 0, 5, 900, "wall", "wall", 0]
+    "objdata": [1.0, 0.5, 0.2, 400, 600, 1800, 5, "ground", "ground", 0],
+    "level": 2
+  },
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 400, 600, 1800, 5, "ground", "ground", 0],
+    "level": 3
+  },
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 0, 0, 5, 900, "wall", "wall1", 0],
+    "level": 1
+  },
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 1800, 0, 5, 900, "sensor", "sensor1", 0],
+    "level": 1
+  },
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 0, 0, 5, 900, "sensor", "sensor2", 0],
+    "level": 2
+  },
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 1800, 0, 5, 900, "sensor", "sensor3", 0],
+    "level": 2
+  },
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 0, 0, 5, 900, "sensor", "sensor4", 0],
+    "level": 3
+  },
+  {
+    "type": "static",
+    "objdata": [1.0, 0.5, 0.2, 1800, 0, 5, 900, "wall", "wall2", 0],
+    "level": 3
   },
   {
     "type": "dynamic",
-    "objdata": [1.0, 0, 0.1, 70, 540, 20, 60, "player", "player"]
+    "objdata": [1.0, 0, 0.1, 900, 540, 20, 60, "player", "link"],
+    "level": 0,
+    "userdata": { "health": 3 }
   },
   {
     "type": "dynamic",
-    "objdata": [1.0, 0.1, 0.1, 700, 540, 20, 60, "orc", "orc1"]
+    "objdata": [1.0, 0.1, 0.1, 700, 540, 20, 60, "orc", "orc1"],
+    "level": 1
   },
   {
     "type": "dynamic",
-    "objdata": [1.0, 0.1, 0.1, 500, 540, 20, 60, "orc", "orc2"]
+    "objdata": [1.0, 0.1, 0.1, 500, 540, 20, 60, "orc", "orc2"],
+    "level": 1
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 1700, 540, 20, 60, "orc", "orc2"],
+    "level": 1
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 700, 590, 20, 20, "slime", "slime1"],
+    "level": 2
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 500, 590, 20, 20, "slime", "slime2"],
+    "level": 2
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 200, 590, 20, 20, "slime", "slime3"],
+    "level": 2
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 1200, 590, 20, 20, "slime", "slime4"],
+    "level": 2
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 1700, 590, 20, 20, "slime", "slime5"],
+    "level": 2
+  },
+  {
+    "type": "dynamic",
+    "objdata": [1.0, 0.1, 0.1, 1700, 540, 60, 120, "boss", "bigOrc"],
+    "level": 3
   }
 ]
