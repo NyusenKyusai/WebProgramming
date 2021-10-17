@@ -30,6 +30,7 @@ if (isset($_POST['submit'])) {
 		$_SESSION['avatar'] = "assets/php/anonymous.png";
 		//Redirecting to the About Us Page
 		header('Location: ' . "../index.php");
+		die();
 	} else {
 		// Tells user the password was invalid
 		echo "Invalid Password";
@@ -37,5 +38,6 @@ if (isset($_POST['submit'])) {
 } else {
 	// Redirecting to login page
 	header("Location: " . "../loginUser.php");
+	die();
 }
 ?>

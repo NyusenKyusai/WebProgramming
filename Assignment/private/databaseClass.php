@@ -61,6 +61,15 @@ class Database {
 		return $result;
 	}
 	
+	public function usernameIDOAuth($conn, $username) {
+		$escapeUsername = $this->dbEscape($conn, $username);
+		
+		$query = mysqli_query($conn, "SELECT userID FROM OAuthUsers WHERE username = '$escapeUsername';" );
+		$result = mysqli_fetch_assoc($query);
+		
+		return $result;
+	}
+	
 	public function rowsUsername($conn, $username) {
 		$escapeUsername = $this->dbEscape($conn, $username);
 		
@@ -70,17 +79,76 @@ class Database {
 		return $result;
 	}
 	
+	public function rowsUsernameOAuth($conn, $username) {
+		$escapeUsername = $this->dbEscape($conn, $username);
+		
+		$query = mysqli_query($conn, "SELECT * FROM OAuthUsers WHERE username = '$escapeUsername';" );
+		$result = mysqli_num_rows($query);
+		
+		return $result;
+	}
+	
 	public function insertIntoUsers($conn, $username, $hash){
 		// Creating the query to insert into the User table
 		$sql = "INSERT INTO users ";
-		$sql .= "(username, password, OAuth) ";
+		$sql .= "(username, password) ";
 		$sql .= "VALUES (";
 		$sql .= "'" . $this->dbEscape($conn, $username) . "', ";
-		$sql .= "'" . $this->dbEscape($conn, $hash) . "', ";
-		$sql .= "'false'";
+		$sql .= "'" . $this->dbEscape($conn, $hash) . "'";
 		$sql .= ");";
 		
 		//echo $sql;
+		
+		// Querying database to save the data
+		$result = mysqli_query($conn, $sql);
+		
+		return $result;
+	}
+	
+	public function insertIntoUsersOAuth($conn, $username, $provider){
+		// Creating the query to insert into the User table
+		$sql = "INSERT INTO OAuthUsers ";
+		$sql .= "(username, provider) ";
+		$sql .= "VALUES (";
+		$sql .= "'" . $this->dbEscape($conn, $username) . "', ";
+		$sql .= "'" . $this->dbEscape($conn, $provider) . "'";
+		$sql .= ");";
+		
+		//echo $sql;
+		
+		// Querying database to save the data
+		$result = mysqli_query($conn, $sql);
+		
+		return $result;
+	}
+	
+	public function insertIntoHighScores($conn, $userID, $highscore){
+		// Creating the query to insert into the User table
+		$sql = "INSERT INTO highScores ";
+		$sql .= "(userID, bestRun) ";
+		$sql .= "VALUES (";
+		$sql .= "'" . $this->dbEscape($conn, $userID) . "', ";
+		$sql .= "'" . $this->dbEscape($conn, $highscore) . "'";
+		$sql .= ");";
+		
+		//echo $sql;
+		
+		// Querying database to save the data
+		$result = mysqli_query($conn, $sql);
+		
+		return $result;
+	}
+	
+	public function insertIntoOAuthHighScores($conn, $userID, $highscore){
+		// Creating the query to insert into the User table
+		$sql = "INSERT INTO OAuthHighScores ";
+		$sql .= "(userID, bestRun) ";
+		$sql .= "VALUES (";
+		$sql .= "'" . $this->dbEscape($conn, $userID) . "', ";
+		$sql .= "'" . $this->dbEscape($conn, $highscore) . "'";
+		$sql .= ");";
+		
+		echo $sql;
 		
 		// Querying database to save the data
 		$result = mysqli_query($conn, $sql);

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <dwsync>
-<file name="loginHandle.php" server="comp-server.uhi.ac.uk/public_html/" local="132788908043709119" remote="132788908040000000" Dst="2" />
-<file name="dbValues.php" server="comp-server.uhi.ac.uk/public_html/" local="132788845297731688" remote="132788845280000000" Dst="2" />
-<file name="databaseClass.php" server="comp-server.uhi.ac.uk/public_html/" local="132788857347783620" remote="132788857350000000" Dst="2" />
-<file name="logoutUser.php" server="comp-server.uhi.ac.uk/public_html/" local="132788877957716425" remote="132788877960000000" Dst="2" />
-<file name="registerHandle.php" server="comp-server.uhi.ac.uk/public_html/" local="132788856599457655" remote="132788856600000000" Dst="2" />
+<file name="loginHandle.php" server="comp-server.uhi.ac.uk/public_html/" local="132789628657029856" remote="132789628680000000" Dst="2" />
+<file name="dbValues.php" server="comp-server.uhi.ac.uk/public_html/" local="132788845297731688" remote="132788845290000000" Dst="2" />
+<file name="databaseClass.php" server="comp-server.uhi.ac.uk/public_html/" local="132789643378404842" remote="132789643400000000" Dst="2" />
+<file name="logoutUser.php" server="comp-server.uhi.ac.uk/public_html/" local="132789627892076367" remote="132789627910000000" Dst="2" />
+<file name="registerHandle.php" server="comp-server.uhi.ac.uk/public_html/" local="132789646216465224" remote="132789646240000000" Dst="2" />
+<file name="OAuthHandle.php" server="comp-server.uhi.ac.uk/public_html/" local="132789645930217524" remote="132789645950000000" Dst="2" />
 </dwsync>

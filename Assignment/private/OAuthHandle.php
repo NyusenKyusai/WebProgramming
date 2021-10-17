@@ -8,15 +8,16 @@ error_reporting(E_ALL ^ E_NOTICE);
 require_once('databaseClass.php');
 
 // Saving username for testing if the username is taken
-$username = $_POST['username'];
+$username = $_SESSION['username'];
+$provider = $_SESSION['provider'];
 
 // Calling function from database page
 $db = new Database();
 $conn  = $db->getConnection();
 
-if(isset($_POST['submit'])) {
+if(isset($_SESSION['OAuth'])) {
 	// Querying database and saving result
-	$result = $db->rowsUsername($conn, $username);
+	$result = $db->rowsUsernameOAuth($conn, $username);
 	
 	//$row = mysqli_num_rows($result);
 	
@@ -26,22 +27,17 @@ if(isset($_POST['submit'])) {
 	if ($result > 0) {
 		echo "Username Taken";
 		// Redirecting to register User page
-		header("Location: " . "../php/registerUser.php");
+		header("Location: " . "../index.php");
 		die();
 	} else {
-		// Saving data from post
-		$password = $_POST['password'];
 		
+		$result = $db->insertIntoUsersOAuth($conn, $username, $provider);
 		
-		// Hashing the password
-		$hash = password_hash($password, PASSWORD_DEFAULT);
-		echo $hash;
+		$userID = $db->usernameIDOAuth($conn, $username);
 		
-		$result = $db->insertIntoUsers($conn, $username, $hash);
+		//var_dump($userID);
 		
-		$userID = $db->usernameID($conn, $username);
-		
-		$highscoreResult = $db->insertIntoHighScores($conn, $userID['userID'], 0);
+		$highscoreResult = $db->insertIntoOAuthHighScores($conn, $userID['userID'], 0);
 		
 		echo $result;
 		

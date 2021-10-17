@@ -13,8 +13,10 @@ if (isset($_SESSION['username'])) {
 	session_destroy();
 	// Redirecting to about us page
 	header("Location: " . "../index.php");
+	die();
 } else {
 	// Redirecting to about us page
 	header("Location: " . "../index.php");
+	die();
 }
 ?>

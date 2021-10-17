@@ -59,10 +59,12 @@
 
 				if ($handler->status == "logged in") {
 					$_SESSION['OAuth'] = "true";
+					$_SESSION['provider'] = $handler->providerInstance->providerName;
 					$_SESSION['username'] = $handler->providerInstance->getName();
 					$_SESSION['avatar'] = $handler->providerInstance->getAvatar();
 					
-					header("Location: " . "../index.php");
+					header("Location: " . "../private/OAuthHandle.php");
+					die();
 				}
 			?>
 		</section>
