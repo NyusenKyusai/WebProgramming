@@ -1,4 +1,19 @@
-<?php session_start(); ?>
+<?php 
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL ^ E_NOTICE);
+
+session_start(); 
+
+// Linking the page to the database page
+require_once('./private/databaseClass.php');
+
+// Calling function from database page
+$db = new Database();
+$conn  = $db->getConnection();
+
+
+?>
 
 <!DOCTYPE html>
 <head>
@@ -26,6 +41,25 @@
 			} else {
 				echo '<li class="nav"><a href="./php/registerUser.php">Register</a></li>';
 				echo '<li class="nav"><a href="./php/loginUser.php">Login</a></li>';
+			}
+			?>
+		</ul>
+		<ul id="logoBar">
+			<?php
+			if (isset($_SESSION['username'])) {
+				
+				$username = $_SESSION['username'];
+				
+				if (isset($_SESSION['OAuth'])) {
+					echo '<li class="nav">Best Run: ' . $db->getBestRunOauth($conn, $username) . '</li>';
+					echo '<li class="nav">Current Run: Oauth</li>';
+				} else {
+					echo '<li class="nav">Best Run: ' . $db->getBestRun($conn, $username) . '</li>';
+					echo '<li class="nav">Current Run: Normal</li>';
+				}
+			} else {
+				echo '<li class="nav">Best Run: 0</li>';
+				echo '<li class="nav">Current Run: 0</li>';
 			}
 			?>
 		</ul>

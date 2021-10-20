@@ -178,5 +178,54 @@ class Database {
 		
 		return $userID['userID'];
 	}
+	
+	public function findIDbyUsernameOAuth($conn, $username) {
+		// Creating SQL query statement
+		$sql = "SELECT userID FROM OAuthUsers ";
+		$sql .= "WHERE username = '" . $this->dbEscape($conn, $username) . "';";
+		
+		$result = mysqli_query($conn, $sql);
+		$userID = mysqli_fetch_assoc($result);
+		
+		return $userID['userID'];
+	}
+	
+	public function getHighScore($conn, $userID) {
+		// Creating SQL query statement
+		$sql = "SELECT bestRun FROM highScores ";
+		$sql .= "WHERE userID = '" . $this->dbEscape($conn, $userID) . "';";
+		
+		$result = mysqli_query($conn, $sql);
+		$bestRun = mysqli_fetch_assoc($result);
+		
+		return $bestRun['bestRun'];
+	}
+	
+	public function getHighScoreOAuth($conn, $userID) {
+		// Creating SQL query statement
+		$sql = "SELECT bestRun FROM OAuthHighScores ";
+		$sql .= "WHERE userID = '" . $this->dbEscape($conn, $userID) . "';";
+		
+		$result = mysqli_query($conn, $sql);
+		$bestRun = mysqli_fetch_assoc($result);
+		
+		return $bestRun['bestRun'];
+	}
+	
+	public function getBestRunOauth($conn, $username) {
+		$userID = $this->findIDbyUsernameOAuth($conn, $username);
+		
+		$bestRun = $this->getHighScoreOAuth($conn, $userID);
+		
+		return $bestRun;
+	}
+	
+	public function getBestRun($conn, $username) {
+		$userID = $this->findIDbyUsername($conn, $username);
+		
+		$bestRun = $this->getHighScore($conn, $userID);
+		
+		return $bestRun;
+	}
 }
 ?>
