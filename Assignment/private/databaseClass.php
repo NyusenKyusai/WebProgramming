@@ -38,11 +38,11 @@ class Database {
 	}
 	
 	// Escapes difficult values from user input before it goes into the database
-	
 	public function dbEscape($_connection, $string) {
 		return mysqli_real_escape_string($_connection, $string);
 	}
 	
+	// Function that returns a associative array containing all the information from the database using the username
 	public function assocUsername($conn, $username) {
 		$escapeUsername = $this->dbEscape($conn, $username);
 		
@@ -52,6 +52,7 @@ class Database {
 		return $result;
 	}
 	
+	// Function that returns the userID from the table using username
 	public function usernameID($conn, $username) {
 		$escapeUsername = $this->dbEscape($conn, $username);
 		
@@ -61,6 +62,7 @@ class Database {
 		return $result;
 	}
 	
+	// Function that returns the UserID using a username from the OAuthUsers database table
 	public function usernameIDOAuth($conn, $username) {
 		$escapeUsername = $this->dbEscape($conn, $username);
 		
@@ -70,6 +72,7 @@ class Database {
 		return $result;
 	}
 	
+	// Function that returns the number of rows in table from users table that match the username
 	public function rowsUsername($conn, $username) {
 		$escapeUsername = $this->dbEscape($conn, $username);
 		
@@ -79,6 +82,7 @@ class Database {
 		return $result;
 	}
 	
+	// Function that returns the number of rows in table from OAuthUsers table that match the username
 	public function rowsUsernameOAuth($conn, $username) {
 		$escapeUsername = $this->dbEscape($conn, $username);
 		
@@ -212,17 +216,21 @@ class Database {
 		return $bestRun['bestRun'];
 	}
 	
+	// Function that returns best run from the OAuthHighscore table
 	public function getBestRunOauth($conn, $username) {
+		// Gets the userID from the username
 		$userID = $this->findIDbyUsernameOAuth($conn, $username);
-		
+		// Gets the best run by running the sql query method
 		$bestRun = $this->getHighScoreOAuth($conn, $userID);
 		
 		return $bestRun;
 	}
 	
+	// Function that returns the number of rows in table from users table that match the username
 	public function getBestRun($conn, $username) {
+		// Gets the userID from the username
 		$userID = $this->findIDbyUsername($conn, $username);
-		
+		// Gets the best run by running the sql query method
 		$bestRun = $this->getHighScore($conn, $userID);
 		
 		return $bestRun;

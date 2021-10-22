@@ -36,15 +36,15 @@ if(isset($_POST['submit'])) {
 		// Hashing the password
 		$hash = password_hash($password, PASSWORD_DEFAULT);
 		echo $hash;
-		
+		// Inserting the new user into the user table allong with the password
 		$result = $db->insertIntoUsers($conn, $username, $hash);
-		
+		// Getting the userID from the username
 		$userID = $db->usernameID($conn, $username);
-		
+		// Inserting 0 into the high scores table using the user id
 		$highscoreResult = $db->insertIntoHighScores($conn, $userID['userID'], 0);
 		
 		echo $result;
-		
+		// If statement that allows the programmer to have an easier time to troubleshoot sql
 		if ($result) {
 			//Redirecting to main page
 			header("Location: " . "../index.php");

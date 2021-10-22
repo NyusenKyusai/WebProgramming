@@ -30,17 +30,17 @@ if(isset($_SESSION['OAuth'])) {
 		header("Location: " . "../index.php");
 		die();
 	} else {
-		
+		// Inserting the username and the provider to the OAuthUsers table
 		$result = $db->insertIntoUsersOAuth($conn, $username, $provider);
-		
+		// Getting the user id from the inserted username
 		$userID = $db->usernameIDOAuth($conn, $username);
 		
 		//var_dump($userID);
-		
+		// Inserting 0 as the best run into the OAuth high scores table
 		$highscoreResult = $db->insertIntoOAuthHighScores($conn, $userID['userID'], 0);
 		
 		echo $result;
-		
+		// If statement that allows the programmer to have an easier time to troubleshoot sql
 		if ($result) {
 			//Redirecting to main page
 			header("Location: " . "../index.php");

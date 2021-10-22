@@ -2,6 +2,7 @@
  * BOX2DWEB Definitions
  */
 
+// Creating variables and setting the Box2d Objects to them so it becomes easier to access
 let b2Vec2 = Box2D.Common.Math.b2Vec2;
 let b2BodyDef = Box2D.Dynamics.b2BodyDef;
 let b2Body = Box2D.Dynamics.b2Body;
@@ -14,6 +15,7 @@ let b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 let b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 let joint = new Box2D.Dynamics.Joints.b2DistanceJointDef();
 
+// Exporting all the variables
 export {
   b2Vec2,
   b2BodyDef,

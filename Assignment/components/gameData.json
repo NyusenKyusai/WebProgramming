@@ -48,51 +48,60 @@
     "type": "dynamic",
     "objdata": [1.0, 0, 0.1, 900, 540, 20, 60, "player", "link"],
     "level": 0,
-    "userdata": { "health": 3 }
+    "userdata": { "health": 5 }
   },
   {
     "type": "dynamic",
     "objdata": [1.0, 0.1, 0.1, 700, 540, 20, 60, "orc", "orc1"],
-    "level": 1
+    "level": 1,
+    "userdata": { "health": 3 }
   },
   {
     "type": "dynamic",
     "objdata": [1.0, 0.1, 0.1, 500, 540, 20, 60, "orc", "orc2"],
-    "level": 1
+    "level": 1,
+    "userdata": { "health": 3 }
   },
   {
     "type": "dynamic",
-    "objdata": [1.0, 0.1, 0.1, 1700, 540, 20, 60, "orc", "orc2"],
-    "level": 1
+    "objdata": [1.0, 0.1, 0.1, 1700, 540, 20, 60, "orc", "orc3"],
+    "level": 1,
+    "userdata": { "health": 3 }
   },
   {
     "type": "dynamic",
     "objdata": [1.0, 0.1, 0.1, 700, 590, 20, 20, "slime", "slime1"],
-    "level": 2
+    "level": 2,
+    "userdata": { "health": 2 }
   },
   {
     "type": "dynamic",
     "objdata": [1.0, 0.1, 0.1, 500, 590, 20, 20, "slime", "slime2"],
-    "level": 2
+    "level": 2,
+    "userdata": { "health": 2 }
   },
   {
     "type": "dynamic",
     "objdata": [1.0, 0.1, 0.1, 200, 590, 20, 20, "slime", "slime3"],
-    "level": 2
+    "level": 2,
+    "userdata": { "health": 2 }
   },
   {
     "type": "dynamic",
     "objdata": [1.0, 0.1, 0.1, 1200, 590, 20, 20, "slime", "slime4"],
-    "level": 2
+    "level": 2,
+    "userdata": { "health": 2 }
   },
   {
     "type": "dynamic",
     "objdata": [1.0, 0.1, 0.1, 1700, 590, 20, 20, "slime", "slime5"],
-    "level": 2
+    "level": 2,
+    "userdata": { "health": 2 }
   },
   {
     "type": "dynamic",
     "objdata": [1.0, 0.1, 0.1, 1700, 540, 60, 120, "boss", "bigOrc"],
-    "level": 3
+    "level": 3,
+    "userdata": { "health": 10 }
   }
 ]
