@@ -40,6 +40,12 @@ exists as the update function updates before the player is recreated using the G
 [Link](https://www.deviantart.com/crookedcartridge/art/Zelda-II-Sprites-297725710 "Link Spritesheet") sprite is a ripped sprite from the Zelda II The Adventure of Link game that was made more easily usable by a user on Deviantart  
 [Moblin](https://www.zeldadungeon.net/wiki/images/0/0a/MoblinOrange-Sprite-AOL.png "Moblin") sprite used for the orcs was also ripped from the game that was also made more usable by the Zelda Dungeon wiki site  
 [Slime](https://opengameart.org/content/slime-sprite-sheet "Slime") is a spritesheet from OpenGameArt.org and it states in the description that it is under free use  
-[HelmetHead](https://www.deviantart.com/splash888/art/Zelda-II-Remake-Bosses-258058708 "Boss") sprite is also from Zelda 2. The png was found on DeviantArt
+[HelmetHead](https://www.deviantart.com/splash888/art/Zelda-II-Remake-Bosses-258058708 "Boss") sprite is also from Zelda 2. The png was found on DeviantArt  
+[Game Over Screen](https://game-over-dex.fandom.com/wiki/Zelda_II:_The_Adventure_of_Link "Game Over") was also ripped from Zelda 2 but was found on a wiki  
+[No Logo](https://www.pngkey.com/detail/u2q8o0o0a9q8w7r5_no-profile-picture-round/ "No logo") was an asset that shows a generaric logo for registered users that did not use OAuth  
+[GitHub](https://logoeps.com/github-cat-in-a-circle-icon-vector/65612/ "Github") This asset was used for OAuth login  
+[Reddit](https://www.reddit.com/r/cutouts/comments/6q5a6l/can_someone_give_me_a_round_cutout_of_the_reddit/ "Reddit") This asset was used for OAuth login  
+[Discord](https://www.pngwing.com/en/free-png-zsdmk "Discord") This asset was used for OAuth login  
+[Music](https://www.youtube.com/watch?v=hOSQ1PC7CW0 "Music") This asset was gotten from youtube as creative commons
 
-All Zelda 2 sprites were used under the assumption of free use. Only the art was used, the code is original and it is not meant for sale, only educational purposes
+All assets, especially Zelda 2 sprites, were used under the assumption of free use. Only the art was used, the code is original and it is not meant for sale, only educational purposes
