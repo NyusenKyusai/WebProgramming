@@ -30,5 +30,19 @@
 			?>
 		</ul>
 	</nav>
+	<div id="Container">
+		<!-- Section that holds the title of the page -->
+		<section class="child" id="title">
+			<h2>Controls</h2>
+		</section>
+		<!-- Section that holds the title of the page -->
+		<section class="child" id="paragraph">
+			<h3>Kill the boss at Level 3 in the shortest amount of time</h3>
+			<p>Move Left: A</p>
+			<p>Move Right: D</p>
+			<p>Jump: Space Bar</p>
+			<p>Attack: Left Mouse Click</p>
+		</section>
+	</div>
 </body>
 </html>

@@ -31,6 +31,7 @@ $conn  = $db->getConnection();
 	<script src="https://code.createjs.com/1.0.0/easeljs.min.js" defer></script>
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js" defer></script>
     <!-- Link to the mainBox2D script as a module and defering it -->
+	<script src="./stopwatch.js"></script>
 	<script type="module" src="./mainBox2D.js" defer></script>
 	<!-- Box2DCanvas CSS style -->
     <style>
@@ -57,7 +58,7 @@ $conn  = $db->getConnection();
 			?>
 		</ul>
 		<!-- UL that holds the navigation bar for the best runs and current run-->
-		<ul id="logoBar">
+		<ul id="logoBarWithoutLines">
 			<?php
 			// If statement that determines whether a user is signed in or not
 			if (isset($_SESSION['username'])) {
@@ -67,23 +68,26 @@ $conn  = $db->getConnection();
 				if (isset($_SESSION['OAuth'])) {
 					// Echos the Best run and the current run
 					// Gets the Best run from the highscore table from the OAuth
-					echo '<li class="nav">Best Run: ' . $db->getBestRunOauth($conn, $username) . '</li>';
-					echo '<li class="nav">Current Run: Oauth</li>';
+					echo '<li style="float: left">OAuth Best Run: ' . $db->getBestRunOauth($conn, $username) . '</li>';
+					echo '<li id="display" style="float: right">Current Run: 00:00:00</li>';
 				} else {
 					// Echos the Best run and the current run
 					// Gets the Best run from the highscore table
-					echo '<li class="nav">Best Run: ' . $db->getBestRun($conn, $username) . '</li>';
-					echo '<li class="nav">Current Run: Normal</li>';
+					echo '<li style="float: left">Best Run: ' . $db->getBestRun($conn, $username) . '</li>';
+					echo '<li id="display" style="float: right">Current Run: 00:00:00</li>';
 				}
 			} else {
 				// Sets Best Run to 0 and the current run
-				echo '<li class="nav">Best Run: 0</li>';
-				echo '<li class="nav">Current Run: 0</li>';
+				echo '<li style="float: left">Not logged In Best Run: 00:00:00</li>';
+				echo '<li id="display" style="float: right">Current Run: 00:00:00</li>';
 			}
 			?>
 		</ul>
 	</nav>
 	<br><br>
+	<audio src="./assets/music/bossmusic.mp3" autoplay loop>
+	<p>If you are reading this, it is because your browser does not support the audio element.     </p>
+	</audio>
 	<!-- Creates the box2dcan canvas -->
     <canvas id="b2dcan" width="1800" height="600">
 

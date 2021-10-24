@@ -1,14 +1,19 @@
 // Importing the mouse and keyboard handles as well as the Box2DWeb Implementation Class
 import * as handlers from "./components/eventHandlers.js";
 import { LoZGame } from "./components/gameLogic.js";
+import localStorageClass from "./components/localStorageClass.js";
 //import EaselGame from "./components/gameLogic.js";
 
+const localObject = new localStorageClass(3);
+
+let json = localObject.getJSONObject("game");
+
 // Calling the Box2DWeb class and setting it to a variable with on the b2dcan canvas
-let mygame = new LoZGame(600, 1800, 30, 0, 9.81, 60, "b2dcan");
+const mygame = new LoZGame(600, 1800, 30, 0, 9.81, 60, "b2dcan");
 // Calling the setupDebugDraw method
 mygame.setupDebugDraw();
 // Getting the data and creating the world bodies for level 1
-mygame.getData("./components/gameData.json", 1);
+mygame.getData("./components/gameData.json", 1, json);
 // Adding the keydown, keyup, and mousedown events
 mygame.addKeyboardHandler("keydown", mygame.handleKeyDown);
 mygame.addKeyboardHandler("keyup", mygame.handleKeyUp);
@@ -32,7 +37,7 @@ mygame.addMouseHandler(
 // );
 
 // Setting LoZ contact to the b2Listener
-let LoZContact = handlers.b2Listener;
+const LoZContact = handlers.b2Listener;
 
 // Calling PostSolve to handle collisions
 LoZContact.PostSolve = (contact, impulse) => {
@@ -45,6 +50,14 @@ LoZContact.PostSolve = (contact, impulse) => {
   let otherCollision = false;
   let enemyUserData = false;
   let playerUserData;
+
+  if (fixA.id == "player" && fixB.id == "ground") {
+    mygame.allowJump = true;
+  }
+
+  if (fixB.id == "player" && fixA.id == "ground") {
+    mygame.allowJump = true;
+  }
 
   // If statement that runs code if fixture A is a player and fixture B is a dynamic body
   if (fixA.id == "player" && !mygame.collisionList.includes(fixB.id)) {
@@ -92,30 +105,46 @@ LoZContact.PostSolve = (contact, impulse) => {
 
   // If statement that runs code if the player collides with a sensor
   if (fixA.id == "player" && fixB.id == "sensor") {
-    // Iterates over the item list and destroys every body
-    mygame.itemList.forEach((item) => {
-      mygame.destroylist.push(item.GetBody());
-    });
+    if (mygame.spawningTimer) {
+      mygame.spawningTimer = false;
 
-    // Sets the itemlist to an empty array
-    mygame.itemList = [];
+      setTimeout(() => {
+        mygame.spawningTimer = true;
+      }, 1000);
 
-    // Calls the spawn method to determine which sensor was collided and get the data from the correct objects
-    mygame.spawn(fixB.uniquename);
-    //mygame.getData("./components/gameData.json", 2);
-  }
+      // Iterates over the item list and destroys every body
+      mygame.itemList.forEach((item) => {
+        mygame.destroylist.push(item.GetBody());
+      });
 
-  // If statement that runs code if the player collides with a sensor
-  if (fixB.id == "player" && fixA.id == "sensor") {
-    // Iterates over the item list and destroys every body
-    mygame.itemList.forEach((item) => {
-      mygame.destroylist.push(item.GetBody());
-    });
-    // Sets the itemlist to an empty array
-    mygame.itemList = [];
-    // Calls the spawn method to determine which sensor was collided and get the data from the correct objects
-    mygame.spawn(fixA.uniquename);
-    //mygame.getData("./components/gameData.json", 2);
+      mygame.itemList = [];
+
+      let jsonObject = localObject.getJSONObject("game");
+
+      // Calls the spawn method to determine which sensor was collided and get the data from the correct objects
+      mygame.spawn(fixB.uniquename, jsonObject);
+      //mygame.getData("./components/gameData.json", 2);
+    }
+    // If statement that runs code if the player collides with a sensor
+  } else if (fixB.id == "player" && fixA.id == "sensor") {
+    if (mygame.spawningTimer) {
+      mygame.spawningTimer = false;
+
+      setTimeout(() => {
+        mygame.spawningTimer = true;
+      }, 1000);
+
+      // Iterates over the item list and destroys every body
+      mygame.itemList.forEach((item) => {
+        mygame.destroylist.push(item.GetBody());
+      });
+      // Sets the itemlist to an empty array
+      mygame.itemList = [];
+
+      // Calls the spawn method to determine which sensor was collided and get the data from the correct objects
+      mygame.spawn(fixA.uniquename);
+      //mygame.getData("./components/gameData.json", 2);
+    }
   }
 
   //console.log(mygame.getInvisible());
@@ -147,6 +176,26 @@ LoZContact.PostSolve = (contact, impulse) => {
         //console.log(enemyHealth);
         // Destroys the enemy
         mygame.destroylist.push(enemyUserData.GetBody());
+
+        let jsonObject = localObject.getJSONObject("game");
+
+        let newJSONObject = mygame.changeJSONObject(
+          jsonObject,
+          enemyUserData.GetBody().GetUserData().uniquename
+        );
+
+        //console.log(newJSONObject);
+
+        localObject.setJSONObject(newJSONObject);
+
+        if (enemyUserData.GetBody().GetUserData().id == "boss") {
+          document.cookie = "seconds=" + displaySeconds;
+          document.cookie = "minutes=" + displayMinutes;
+          document.cookie = "hours=" + displayHours;
+
+          // Redirected to the Win screen if they have won
+          window.location.href = "gameWin.php";
+        }
       } else {
         //console.log(enemyUserData);
         // Changes the user data from the enemy to include the current health
@@ -178,13 +227,13 @@ LoZContact.PostSolve = (contact, impulse) => {
       mygame.applyImpulse(direction, isPlayer, 10, -25);
 
       // Setting the Invisibility frames interval
-      setInterval(function () {
+      setTimeout(function () {
         // Setting invinsible to false
         mygame.setInvisible(false);
       }, 1000);
 
       // Setting the AllowMove interval
-      setInterval(function () {
+      setTimeout(function () {
         // ALlowing the user to control the player
         mygame.setAllowMove(true);
       }, 300);

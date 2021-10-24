@@ -41,7 +41,7 @@ if(isset($_POST['submit'])) {
 		// Getting the userID from the username
 		$userID = $db->usernameID($conn, $username);
 		// Inserting 0 into the high scores table using the user id
-		$highscoreResult = $db->insertIntoHighScores($conn, $userID['userID'], 0);
+		$highscoreResult = $db->insertIntoHighScores($conn, $userID['userID'], "00", "00","00");
 		
 		echo $result;
 		// If statement that allows the programmer to have an easier time to troubleshoot sql

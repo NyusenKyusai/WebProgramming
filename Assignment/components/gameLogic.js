@@ -15,6 +15,7 @@ class Game {
   document;
   b2dctx;
   world;
+  spawningTimer = true;
   // Setting boolean variables that act as flags
   // This boolean used for new levels
   gameStart = true;
@@ -123,7 +124,8 @@ class Game {
 
   // getData function that uses XMLHTTPRequest to grab the body information from the json and create the bodies
   // takes in the level the game starts with and the location of the json
-  getData = (datasource, level) => {
+  getData = (datasource, level, json) => {
+    this.currentLevel = level;
     // Setting the XHR variable to the http request class
     let XHR = new XMLHttpRequest();
     // setting the onreadystatechange to callback function that creates the bodies
@@ -132,10 +134,14 @@ class Game {
       if (XHR.readyState == 4 && XHR.status == 200) {
         // Parsing the http request into json
         let gamedata = JSON.parse(XHR.responseText);
+
         // Taking the gamedata json and running code for each entry using a foreach loop and passing the item
         gamedata.forEach((item) => {
           // If statement to add bodies to the world depending on what level the player is in
-          if (item.level == level || item.level == 0) {
+          if (
+            (item.level == level || item.level == 0) &&
+            !json["level" + this.currentLevel].array.includes(item.objdata[8])
+          ) {
             // Switch case that calls the defineBody according to the type of the body in the json
             switch (item.type) {
               // When the body is a static object
@@ -231,6 +237,7 @@ class Game {
 
 // Class that extends the main class and adds logic to make the game specific to Legend of Zelda
 class LoZGame extends Game {
+  allowJump = true;
   // Timer for slime movement
   slimeTimer = true;
   // Attacking flag
@@ -241,24 +248,24 @@ class LoZGame extends Game {
   attackTiming;
 
   // Method to add bodies to the world using getData method when the player changes level
-  spawn = (uniquename) => {
+  spawn = (uniquename, json) => {
+    // Sets the itemlist to an empty array
+    this.itemList = [];
     // Switch case that takes the sensor unique name and passes the level to the get data method
     switch (uniquename) {
       case "sensor1":
-        this.getData("./components/gameData.json", 2);
+        this.getData("./components/gameData.json", 2, json);
         break;
       case "sensor2":
-        this.getData("./components/gameData.json", 1);
+        this.getData("./components/gameData.json", 1, json);
         break;
       case "sensor3":
-        this.getData("./components/gameData.json", 3);
+        this.getData("./components/gameData.json", 3, json);
         break;
       case "sensor4":
-        this.getData("./components/gameData.json", 2);
+        this.getData("./components/gameData.json", 2, json);
         break;
     }
-
-    console.log(this.itemList);
   };
 
   // Method to create and return the bodies from the item list that are enemies
@@ -469,8 +476,11 @@ class LoZGame extends Game {
       this.setLinearVelocity(player, 4, this.getLinearY(player));
       // If the keycode is space bar and allowMove is true
     } else if (keyCode == 32 && this.allowMove) {
-      // Setting the linear velocity of player to going up while keeping the linear velocity in the x direction
-      this.setLinearVelocity(player, this.getLinearX(player), -5);
+      if (this.allowJump) {
+        this.allowJump = false;
+        // Setting the linear velocity of player to going up while keeping the linear velocity in the x direction
+        this.setLinearVelocity(player, this.getLinearX(player), -5);
+      }
     }
   };
 
@@ -516,6 +526,25 @@ class LoZGame extends Game {
     // Calls the attack method
     this.attack();
   };
+
+  changeJSONObject = (json, uniquename) => {
+    switch (this.currentLevel) {
+      case 1:
+        json.level1.array.push(uniquename);
+        json.level1.kills += 1;
+        break;
+      case 2:
+        json.level2.array.push(uniquename);
+        json.level2.kills += 1;
+        break;
+      case 3:
+        json.level3.array.push(uniquename);
+        json.level3.kills += 1;
+        break;
+    }
+
+    return json;
+  };
 }
 
 // Class that extends the Box2D class and adds to easeljs to it
@@ -535,6 +564,7 @@ class EaselGame extends LoZGame {
   destroylistEnemy = [];
   enemyArray = [];
   attackTiming;
+  allowJump = true;
   // Spritesheet variables
   playerSpritesheet;
   orcSpritesheet;
@@ -946,8 +976,11 @@ class EaselGame extends LoZGame {
       this.setLinearVelocity(player, 4, this.getLinearY(player));
       // If the keycode is space bar and allowMove is true
     } else if (keyCode == 32 && this.allowMove) {
-      // Setting the linear velocity of player to going up while keeping the linear velocity in the x direction
-      this.setLinearVelocity(player, this.getLinearX(player), -5);
+      if (this.allowJump) {
+        this.allowJump = false;
+        // Setting the linear velocity of player to going up while keeping the linear velocity in the x direction
+        this.setLinearVelocity(player, this.getLinearX(player), -5);
+      }
     }
   };
 

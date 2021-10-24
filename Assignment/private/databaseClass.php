@@ -126,13 +126,15 @@ class Database {
 		return $result;
 	}
 	
-	public function insertIntoHighScores($conn, $userID, $highscore){
+	public function insertIntoHighScores($conn, $userID, $seconds, $minutes, $hours){
 		// Creating the query to insert into the User table
 		$sql = "INSERT INTO highScores ";
-		$sql .= "(userID, bestRun) ";
+		$sql .= "(userID, seconds, minutes, hours) ";
 		$sql .= "VALUES (";
 		$sql .= "'" . $this->dbEscape($conn, $userID) . "', ";
-		$sql .= "'" . $this->dbEscape($conn, $highscore) . "'";
+		$sql .= "'" . $this->dbEscape($conn, $seconds) . "', ";
+		$sql .= "'" . $this->dbEscape($conn, $minutes) . "', ";
+		$sql .= "'" . $this->dbEscape($conn, $hours) . "'";
 		$sql .= ");";
 		
 		//echo $sql;
@@ -143,16 +145,53 @@ class Database {
 		return $result;
 	}
 	
-	public function insertIntoOAuthHighScores($conn, $userID, $highscore){
+	public function insertIntoOAuthHighScores($conn, $userID, $seconds, $minutes, $hours){
 		// Creating the query to insert into the User table
 		$sql = "INSERT INTO OAuthHighScores ";
-		$sql .= "(userID, bestRun) ";
+		$sql .= "(userID, seconds, minutes, hours) ";
 		$sql .= "VALUES (";
 		$sql .= "'" . $this->dbEscape($conn, $userID) . "', ";
-		$sql .= "'" . $this->dbEscape($conn, $highscore) . "'";
+		$sql .= "'" . $this->dbEscape($conn, $seconds) . "', ";
+		$sql .= "'" . $this->dbEscape($conn, $minutes) . "', ";
+		$sql .= "'" . $this->dbEscape($conn, $hours) . "'";
 		$sql .= ");";
 		
-		echo $sql;
+		var_dump($sql);
+		
+		// Querying database to save the data
+		$result = mysqli_query($conn, $sql);
+		
+		return $result;
+	}
+
+	public function updateHighScores($conn, $userID, $seconds, $minutes, $hours){
+		// Creating the query to insert into the User table
+		$sql = "UPDATE highScores SET ";
+		$sql .= "seconds='" . $this->dbEscape($conn, $seconds) . "', ";
+		$sql .= "minutes='" . $this->dbEscape($conn, $minutes) . "', ";
+		$sql .= "hours='" . $this->dbEscape($conn, $minutes) . "' ";
+		$sql .= "WHERE userID = " .  $userID . " ";
+		$sql .= "LIMIT 1;";
+		
+		//var_dump($sql);
+		
+		// Querying database to save the data
+		$result = mysqli_query($conn, $sql);
+		
+		return $result;
+	}
+	
+	public function updateOAuthHighScores($conn, $userID, $seconds, $minutes, $hours){
+		
+		// Creating the query to insert into the User table
+		$sql = "UPDATE OAuthHighScores SET ";
+		$sql .= "seconds='" . $this->dbEscape($conn, $seconds) . "', ";
+		$sql .= "minutes='" . $this->dbEscape($conn, $minutes) . "', ";
+		$sql .= "hours='" . $this->dbEscape($conn, $minutes) . "' ";
+		$sql .= "WHERE userID = " . $userID . " ";
+		$sql .= "LIMIT 1;";
+		
+		//var_dump($sql);
 		
 		// Querying database to save the data
 		$result = mysqli_query($conn, $sql);
@@ -196,24 +235,24 @@ class Database {
 	
 	public function getHighScore($conn, $userID) {
 		// Creating SQL query statement
-		$sql = "SELECT bestRun FROM highScores ";
+		$sql = "SELECT seconds, minutes, hours FROM highScores ";
 		$sql .= "WHERE userID = '" . $this->dbEscape($conn, $userID) . "';";
 		
 		$result = mysqli_query($conn, $sql);
 		$bestRun = mysqli_fetch_assoc($result);
 		
-		return $bestRun['bestRun'];
+		return $bestRun;
 	}
 	
 	public function getHighScoreOAuth($conn, $userID) {
 		// Creating SQL query statement
-		$sql = "SELECT bestRun FROM OAuthHighScores ";
+		$sql = "SELECT seconds, minutes, hours FROM OAuthHighScores ";
 		$sql .= "WHERE userID = '" . $this->dbEscape($conn, $userID) . "';";
 		
 		$result = mysqli_query($conn, $sql);
 		$bestRun = mysqli_fetch_assoc($result);
 		
-		return $bestRun['bestRun'];
+		return $bestRun;
 	}
 	
 	// Function that returns best run from the OAuthHighscore table
@@ -222,8 +261,16 @@ class Database {
 		$userID = $this->findIDbyUsernameOAuth($conn, $username);
 		// Gets the best run by running the sql query method
 		$bestRun = $this->getHighScoreOAuth($conn, $userID);
+
+		$displaySeconds = $bestRun["seconds"];
+		  
+		$displayMinutes = $bestRun["minutes"];
 		
-		return $bestRun;
+		$displayHours = $bestRun["hours"];
+
+		$result = $displayHours . ":" . $displayMinutes . ":" . $displaySeconds;
+
+		return $result;
 	}
 	
 	// Function that returns the number of rows in table from users table that match the username
@@ -232,8 +279,16 @@ class Database {
 		$userID = $this->findIDbyUsername($conn, $username);
 		// Gets the best run by running the sql query method
 		$bestRun = $this->getHighScore($conn, $userID);
+
+		$displaySeconds = $bestRun["seconds"];
+		  
+		$displayMinutes = $bestRun["minutes"];
 		
-		return $bestRun;
+		$displayHours = $bestRun["hours"];
+
+		$result = $displayHours . ":" . $displayMinutes . ":" . $displaySeconds;
+
+		return $result;
 	}
 }
 ?>

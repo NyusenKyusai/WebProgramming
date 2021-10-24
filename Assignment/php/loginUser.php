@@ -59,7 +59,7 @@
 				<br><input type="submit" value="Log In" id="button" name="submit"><br>
 			</form>
 			<!-- Section of the login that holds and handles OAuth login -->
-			<p>OAuth</p>
+			<p id="login">OAuth</p>
 			<?php
 				// if the handler status is logged out or null
 				if ($handler->status == "logged out" || $handler->status == null) {

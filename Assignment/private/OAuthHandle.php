@@ -37,7 +37,7 @@ if(isset($_SESSION['OAuth'])) {
 		
 		//var_dump($userID);
 		// Inserting 0 as the best run into the OAuth high scores table
-		$highscoreResult = $db->insertIntoOAuthHighScores($conn, $userID['userID'], 0);
+		$highscoreResult = $db->insertIntoOAuthHighScores($conn, $userID['userID'], "00", "00", "00");
 		
 		echo $result;
 		// If statement that allows the programmer to have an easier time to troubleshoot sql
