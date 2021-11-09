@@ -141,8 +141,10 @@ LoZContact.PostSolve = (contact, impulse) => {
       // Sets the itemlist to an empty array
       mygame.itemList = [];
 
+      let jsonObject = localObject.getJSONObject("game");
+
       // Calls the spawn method to determine which sensor was collided and get the data from the correct objects
-      mygame.spawn(fixA.uniquename);
+      mygame.spawn(fixA.uniquename, jsonObject);
       //mygame.getData("./components/gameData.json", 2);
     }
   }
