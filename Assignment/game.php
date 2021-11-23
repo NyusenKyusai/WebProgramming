@@ -32,7 +32,7 @@ $conn  = $db->getConnection();
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js" defer></script>
     <!-- Link to the mainBox2D script as a module and defering it -->
 	<script src="./stopwatch.js"></script>
-	<script type="module" src="./mainBox2D.js" defer></script>
+	<script type="module" src="./mainEasel.js" defer></script>
 	<!-- Box2DCanvas CSS style -->
     <style>
         #b2dcan {background-color: #000; user-select: none;}
