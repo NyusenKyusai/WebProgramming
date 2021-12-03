@@ -26,35 +26,40 @@ const SCALE = 30;
 const WIDTH = 900;
 const HEIGHT = 500;
 let size = 50;
-let fps = 30;
+let fps = 65;
 let interval;
+let keyhit = false;
 
 function createAnObject(objid, x, y, dims, iscircle, isstatic) {
-  let bodyDef = new b2BodyDef();
+  // prettier-ignore
+  let bodyDef = new b2BodyDef;
   bodyDef.type = isstatic ? b2Body.b2_staticBody : b2Body.b2_dynamicBody;
   bodyDef.position.x = x / SCALE;
   bodyDef.position.y = y / SCALE;
-  let fixDef = new b2FixtureDef();
+
+  // prettier-ignore
+  let fixDef = new b2FixtureDef;
   fixDef.density = 1.5;
   fixDef.friction = 0.2;
   fixDef.restitution = 1.0;
-  let width, heigth;
+  let width, height;
   if (iscircle) {
     fixDef.shape = new b2CircleShape(dims.radius / SCALE);
     width = dims.radius * 2;
-    heigth = dims.radius * 2;
+    height = dims.radius * 2;
   } else {
-    fixDef.shape = new b2PolygonShape();
-    fixDef.shape.SetAsBox(dims.width / SCALE, dims.heigth / SCALE);
+    // prettier-ignore
+    fixDef.shape = new b2PolygonShape;
+    fixDef.shape.SetAsBox(dims.width / SCALE, dims.height / SCALE);
     width = dims.width;
-    heigth = dims.heigth;
+    height = dims.height;
   }
 
   let thisObj = world.CreateBody(bodyDef).CreateFixture(fixDef);
   thisObj.GetBody().SetUserData({
     id: objid,
     width: width,
-    heigth: heigth,
+    height: height,
     iscircle: iscircle,
   });
 
@@ -67,12 +72,15 @@ function drawDOMObjects() {
   for (let b = world.GetBodyList(); b; b = b.GetNext()) {
     for (let f = b.GetFixtureList(); f; f = f.GetNext()) {
       let id = f.GetBody().GetUserData().id;
-      let x = f.GetBody().GetPosition().x * SCALE;
-      let y = f.GetBody().GetPosition().y * SCALE;
-      let r = f.GetBody().GetAngle();
+      let x = Math.round(f.GetBody().GetPosition().x * SCALE);
+      let y = Math.round(f.GetBody().GetPosition().y * SCALE);
+      let r = Math.round(f.GetBody().GetAngle() * 100) / 100;
+
+      //console.log(x);
+
       let iscircle = f.GetBody().GetUserData().iscircle;
-      let objwidth = f.GetBody().GetUserData().width;
-      let objheight = f.GetBody().GetUserData().heigth;
+      let objwidth = Math.round(f.GetBody().GetUserData().width);
+      let objheight = Math.round(f.GetBody().GetUserData().height);
 
       ret.push({
         id: id,
@@ -92,6 +100,28 @@ function drawDOMObjects() {
 function update() {
   world.Step(1 / fps, 10, 10);
 
+  if (keyhit) {
+    keyhit = false;
+    let applyrandom = false;
+
+    let randomItem = Math.floor(world.GetBodyCount() * Math.random());
+
+    for (let b = world.GetBodyList(); b; b = b.GetNext()) {
+      randomItem--;
+      for (let f = b.GetFixtureList(); f; f = f.GetNext()) {
+        if (randomItem <= 0 && !applyrandom) {
+          if (f.GetBody().GetUserData().id == "rand") {
+            applyrandom = true;
+            f.GetBody().SetLinearVelocity(
+              new b2Vec2(Math.random() * 30, Math.random() * 30),
+              f.GetBody().GetWorldCenter()
+            );
+          }
+        }
+      }
+    }
+  }
+
   io.sockets.emit("objectData", drawDOMObjects());
   world.ClearForces();
 }
@@ -99,10 +129,10 @@ function update() {
 function init() {
   world = new b2World(new b2Vec2(0, 9.81), true);
 
-  createAnObject("bord", 0, 0, { width: WIDTH, heigth: 5 }, false, true);
-  createAnObject("bord", 0, HEIGHT, { width: WIDTH, heigth: 5 }, false, true);
-  createAnObject("bord", 0, 0, { width: 5, heigth: HEIGHT }, false, true);
-  createAnObject("bord", 0, WIDTH, { width: 5, heigth: HEIGHT }, false, true);
+  createAnObject("bord", 0, 0, { width: WIDTH, height: 5 }, false, true);
+  createAnObject("bord", 0, HEIGHT, { width: WIDTH, height: 5 }, false, true);
+  createAnObject("bord", 0, 0, { width: 5, height: HEIGHT }, false, true);
+  createAnObject("bord", 0, WIDTH, { width: 5, height: HEIGHT }, false, true);
 
   createAnObject(
     "rand",
@@ -110,7 +140,6 @@ function init() {
     Math.random() * (HEIGHT - size),
     {
       radius: Math.random() * size,
-      heigth: Math.random() * size,
     },
     true,
     false
@@ -121,8 +150,8 @@ function init() {
     Math.random() * (WIDTH - size),
     Math.random() * (HEIGHT - size),
     {
-      radius: Math.random() * size,
-      heigth: Math.random() * size,
+      width: Math.random() * size,
+      height: Math.random() * size,
     },
     false,
     false
@@ -144,6 +173,10 @@ http.listen(8000, function () {
   console.log("server up on *:8000");
   io.on("connection", function (socket) {
     connections.push(socket);
+    socket.on("keypress", (e) => {
+      console.log("key hit by " + socket.id);
+      keyhit = true;
+    });
   });
 });
 

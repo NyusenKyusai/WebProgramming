@@ -53,13 +53,30 @@
       #messages > li:nth-child(odd) {
         background: #efefef;
       }
+
+      #messagepanel {
+        display: none;
+      }
     </style>
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
+    <div id="regpanel">
+      <p>Register your nickname</p>
+      <form id="regform" action="">
+        <input id="nickname" />
+        <button>Send</button>
+      </form>
+    </div>
+    <div id="messagepanel">
+      <ul id="userlist"></ul>
+    </div>
     <ul id="messages"></ul>
     <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send it!</button>
+      To<span id="activetarget">Everyone </span> >><input
+        id="input"
+        autocomplete="off"
+      /><button>Send it!</button>
     </form>
   </body>
   <script>
@@ -67,20 +84,119 @@
     let form = document.getElementById("form");
     let input = document.getElementById("input");
     let messageContainer = document.getElementById("messages");
+    let messagepanel = document.getElementById("messagepanel");
+    let userlist = document.getElementById("userlist");
+    let regpanel = document.getElementById("regpanel");
+    let regform = document.getElementById("regform");
+    let activetarget = "Everyone";
+    let activechat = null;
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
 
       if (input.value) {
-        socket.emit("chatmsg", input.value);
+        if (!activechat) {
+          socket.emit("chatmsg", input.value);
+          appendMessage({
+            nickname: "You",
+            msg: input.value,
+          });
+        } else {
+          socket.emit("dmmsg", { sockid: activechat, msg: input.value });
+
+          let targetnick = document.getElementById("activetarget").innerHTML;
+
+          appendMessage({
+            nickname: "You to " + targetnick,
+            msg: input.value,
+          });
+        }
         input.value = "";
+
+        socket.emit("nottyping");
+      }
+    });
+
+    regform.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (e.target.nickname.value) {
+        let nickname = e.target.nickname.value;
+        socket.emit("reguser", nickname);
+        regform.style.display = "none";
+        messagepanel.style.display = "block";
       }
     });
 
     socket.on("chatmsg", function (msg) {
-      let listItem = document.createElement("li");
-      listItem.textContent = msg;
-      messageContainer.appendChild(listItem);
+      appendMessage(msg);
     });
+
+    socket.on("dmmsg", function (msg) {
+      appendMessage({ nickname: "(dm) " + msg.nickname, msg: msg.msg });
+    });
+
+    input.addEventListener("input", function (e) {
+      if (input.value) {
+        socket.emit("istyping");
+      } else {
+        socket.emit("nottyping");
+      }
+    });
+
+    userlist.addEventListener("click", function (e) {
+      if (activechat) {
+        activechat = null;
+        document.getElementById("activetarget").innerHTML = "Everyone";
+      } else {
+        if (e.target.id != socket.id) {
+          activechat = e.target.id;
+          document.getElementById("activetarget").innerHTML =
+            e.target.attributes.name.value;
+        }
+      }
+    });
+
+    socket.on("istyping", function (sockid) {
+      let useritem = document.getElementById(sockid);
+
+      useritem.innerHTML = useritem.attributes.name.value + " (typing)";
+    });
+
+    socket.on("nottyping", function (sockid) {
+      let useritem = document.getElementById(sockid);
+
+      useritem.innerHTML = useritem.attributes.name.value;
+    });
+
+    socket.on("connectionlist", function (connections) {
+      let outputHTML = "";
+
+      for (let i in connections) {
+        outputHTML +=
+          "<li name='" +
+          connections[i].nickname +
+          "' id='" +
+          connections[i].socket +
+          "'>" +
+          connections[i].nickname +
+          "</li>";
+      }
+
+      userlist.innerHTML = outputHTML;
+    });
+
+    socket.on("usergone", function (nick) {
+      appendMessage({ nickname: nick, msg: " disconnected" });
+    });
+
+    socket.on("userregistered", function (nick) {
+      appendMessage({ nickname: nick, msg: " connected" });
+    });
+
+    function appendMessage(msg) {
+      let listItem = document.createElement("li");
+      listItem.textContent = msg.nickname + ": " + msg.msg;
+      messageContainer.appendChild(listItem);
+    }
   </script>
 </html>
