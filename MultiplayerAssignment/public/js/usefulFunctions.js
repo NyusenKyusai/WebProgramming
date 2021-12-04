@@ -19,9 +19,7 @@ const findIndexRoom = (array, sockid) => {
 
   for (i = 0; i < array.length; i++) {
     r = array[i].findIndex((element) => element == sockid);
-    if (r != -1) {
-      break;
-    }
+    break;
   }
 
   return { r, i };
@@ -33,9 +31,4 @@ const findIndex = (array, sockid) => {
   return c;
 };
 
-module.exports = {
-  roomCreation: roomCreation,
-  playerToRoom: playerToRoom,
-  findIndexRoom: findIndexRoom,
-  findIndex: findIndex,
-};
+export { roomCreation, playerToRoom, findIndex, findIndexRoom };

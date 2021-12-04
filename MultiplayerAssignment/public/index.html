@@ -6,7 +6,7 @@
     <script src="https://code.createjs.com/1.0.0/preloadjs.min.js" defer></script>
     <script src="https://code.createjs.com/1.0.0/soundjs.min.js" defer></script>
     <script src="https://code.createjs.com/1.0.0/easeljs.min.js" defer></script>
-    <script src="./js/main.js" defer></script>
+    <script type="module" src="./js/main.js" defer></script>
 </head>
 <body>
   <div id="regpanel" class="active">
@@ -21,10 +21,15 @@
 
   <div id="lobbypanel">
     <h1>Web Racer Lobby </h1>
+    <span id="nicknameSpan"></span>
+    <ul id="roomplayers">
+
+    </ul>
   </div>
 
   <div id="gamepanel">
-    <h1>Web Racer <span id="datarate"></span><span id="fps"></span></h1>
+    <h1>Web Racer Game<span id="datarate"></span><span id="fps"></span></h1>
+    <span id="nicknameSpan"></span>
     <canvas id="easelcan" width="1800" height="600"></canvas>
     <p id="instruction"></p>
   </div>

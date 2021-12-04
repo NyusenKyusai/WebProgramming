@@ -19,6 +19,7 @@ app.use("/assets", express.static(__dirname + "public/assets"));
 
 let connections = [];
 let rooms = [];
+let regRooms = [];
 let counter = 0;
 
 io.on("connection", (socket) => {
@@ -26,6 +27,7 @@ io.on("connection", (socket) => {
     counter++;
 
     rooms.push(functions.roomCreation(socket, "Room 1"));
+    regRooms.push([]);
   } else {
     counter = 0;
 
@@ -39,6 +41,7 @@ io.on("connection", (socket) => {
 
       if (i == rooms.length - 1) {
         rooms.push(functions.roomCreation(socket, "Room " + rooms.length));
+        regRooms.push([]);
 
         counter++;
         break;
@@ -50,30 +53,32 @@ io.on("connection", (socket) => {
 
   connections.push({ socket: socket.id, nickname: "Anon" });
   io.sockets.emit("connectionlist", connections);
+
+  console.log(connections);
   //console.log(rooms);
 
   socket.on("disconnect", () => {
     console.log(socket.id + " disconnected");
 
-    let i = connections.findIndex((element) => element.socket == socket.id);
-
     //console.log(i);
-
-    socket.broadcast.emit("usergone", connections[i].nickname);
 
     connections = connections.filter((element) => element.socket !== socket.id);
 
-    io.sockets.emit("connection list", connections);
+    io.sockets.emit("connectionlist", connections);
 
     if (rooms.length != 0) {
-      for (let i = 0; i < rooms.length; i++) {
-        let r = rooms[i].findIndex((element) => element == socket.id);
+      let r = functions.findIndexRoom(rooms, socket.id);
 
-        //console.log(r);
+      //console.log(r);
+      //console.log(rooms);
 
-        if (r != -1) {
-          rooms[i] = rooms[i].filter((element) => element !== socket.id);
-        }
+      if (r.r != -1) {
+        rooms[r.i] = rooms[r.i].filter((element) => element !== socket.id);
+        io.to("Room " + r.i + 1).emit("disconnected");
+        io.to("Room " + r.i + 1).emit("rooms", rooms[r.i]);
+
+        regRooms[r.i].pop();
+        console.log(regRooms);
       }
     }
 
@@ -81,12 +86,27 @@ io.on("connection", (socket) => {
   });
 
   socket.on("reguser", (nickname) => {
-    let i = connections.findIndex((element) => element.socket == socket.id);
+    let i = functions.findIndex(connections, socket.id);
     connections[i].nickname = nickname;
+
+    let r = functions.findIndexRoom(rooms, socket.id);
+
+    //console.log(r);
 
     io.sockets.emit("connectionlist", connections);
 
-    console.log(connections);
+    io.to(socket.id).emit("registered");
+    io.to("Room " + r.i + 1).emit("rooms", rooms[r.i]);
+
+    regRooms[r.i].push("yes");
+
+    if (regRooms[r.i].length === 4) {
+      io.to("Room " + r.i + 1).emit("roomfull");
+    }
+
+    console.log(regRooms);
+
+    //console.log(connections);
   });
 });
 
