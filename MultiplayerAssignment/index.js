@@ -78,8 +78,10 @@ io.on("connection", (socket) => {
         io.to("Room " + r.i + 1).emit("rooms", rooms[r.i]);
 
         regRooms[r.i].pop();
-        console.log(regRooms);
+        //console.log(regRooms);
       }
+
+      io.to("Room " + r.i + 1).emit("returntolobby");
     }
 
     //console.log(rooms);
@@ -104,7 +106,7 @@ io.on("connection", (socket) => {
       io.to("Room " + r.i + 1).emit("roomfull");
     }
 
-    console.log(regRooms);
+    //console.log(regRooms);
 
     //console.log(connections);
   });

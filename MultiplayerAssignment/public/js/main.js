@@ -32,8 +32,12 @@ socket.on("rooms", (_rooms) => {
 
   roomMembers = _rooms;
 
+  console.log(roomMembers);
+
   for (let i in roomMembers) {
     let r = functions.findIndex(connections, roomMembers[i]);
+
+    console.log(r);
 
     outputHTML +=
       "<li name='" +
@@ -49,7 +53,7 @@ socket.on("rooms", (_rooms) => {
     outputHTML += "<li>Looking for player</li>";
   }
 
-  //console.log(outputHTML);
+  console.log(outputHTML);
   lobbylist.innerHTML = outputHTML;
 });
 
@@ -61,4 +65,9 @@ socket.on("registered", () => {
 socket.on("roomfull", () => {
   lobbypanel.classList.remove("active");
   gamepanel.classList.add("active");
+});
+
+socket.on("returntolobby", () => {
+  gamepanel.classList.remove("active");
+  lobbypanel.classList.add("active");
 });
