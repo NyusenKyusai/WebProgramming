@@ -1,7 +1,233 @@
 [
   {
+    "type": "dynamic",
+    "objdata": [10, 1.0, 0.2, 985, 633, 10, 5, "player", "player1"]
+  },
+
+  {
     "type": "static",
-    "objdata": [1.0, 0.5, 0.2, 600, 500, 300, 5, "track", "track1", 0],
-    "level": 1
+    "objdata": [
+      20,
+      0.5,
+      0.2,
+      353.5,
+      115,
+      123.42,
+      2,
+      "wall",
+      "outsidewall1",
+      -0.36
+    ]
+  },
+  {
+    "type": "static",
+    "objdata": [
+      20,
+      0.5,
+      0.2,
+      176.5,
+      233,
+      97.77,
+      2,
+      "wall",
+      "outsidewall2",
+      -0.89
+    ]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 105, 405, 97.77, 2, "wall", "outsidewall3", 1.67]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 168, 600, 123.42, 2, "wall", "outsidewall4", -2.2]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 350, 760, 123.42, 2, "wall", "outsidewall5", 0.5]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 580, 845, 123.42, 2, "wall", "outsidewall6", 0.2]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1000, 870, 300, 2, "wall", "outsidewall7", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1490, 810, 200, 2, "wall", "outsidewall8", -0.3]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1690, 650, 100, 2, "wall", "outsidewall9", 1.67]
+  },
+  {
+    "type": "static",
+    "objdata": [
+      20,
+      0.5,
+      0.2,
+      1585,
+      500,
+      123.42,
+      2,
+      "wall",
+      "outsidewall10",
+      0.4
+    ]
+  },
+  {
+    "type": "static",
+    "objdata": [
+      20,
+      0.5,
+      0.2,
+      1355,
+      495,
+      123.42,
+      2,
+      "wall",
+      "outsidewall11",
+      -0.36
+    ]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1010, 540, 230, 2, "wall", "outsidewall12", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 670, 480, 123.42, 2, "wall", "outsidewall13", 0.5]
+  },
+  {
+    "type": "static",
+    "objdata": [
+      20,
+      0.5,
+      0.2,
+      678,
+      378,
+      123.42,
+      2,
+      "wall",
+      "outsidewall14",
+      -0.36
+    ]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1090, 305, 300, 2, "wall", "outsidewall15", -0.1]
+  },
+  {
+    "type": "static",
+    "objdata": [
+      20,
+      0.5,
+      0.2,
+      1505,
+      232,
+      123.42,
+      2,
+      "wall",
+      "outsidewall16",
+      -0.36
+    ]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1590, 115, 80, 2, "wall", "outsidewall17", -2]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1258, 38, 300, 2, "wall", "outsidewall18", 0.02]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 712, 52, 248, 2, "wall", "outsidewall19", -0.08]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 380, 195, 90, 2, "wall", "insidewall1", -0.36]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 252, 280, 70, 2, "wall", "insidewall2", -0.89]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 202, 403, 70, 2, "wall", "insidewall3", 1.67]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 240, 535, 75, 2, "wall", "insidewall4", -2.2]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 375, 650, 105, 2, "wall", "insidewall5", 0.54]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 580, 728, 120, 2, "wall", "insidewall6", 0.2]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 970, 753, 272, 2, "wall", "insidewall7", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1400, 704, 165, 2, "wall", "insidewall8", -0.3]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1560, 630, 25, 2, "wall", "insidewall9", 1.67]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1518, 588, 50, 2, "wall", "insidewall10", 0.4]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1360, 610, 120, 2, "wall", "insidewall11", -0.36]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1018, 652, 230, 2, "wall", "insidewall12", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 615, 557, 200, 2, "wall", "insidewall13", 0.5]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 450, 412, 50, 2, "wall", "insidewall14", 1.8]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 600, 302, 153, 2, "wall", "insidewall15", -0.42]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1038, 210, 300, 2, "wall", "insidewall16", -0.1]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1400, 156, 70, 2, "wall", "insidewall17", -0.36]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1215, 125, 250, 2, "wall", "insidewall18", 0.02]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 715, 142, 252, 2, "wall", "insidewall19", -0.09]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1005, 596, 2, 57, "sensor", "start", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 965, 596, 2, 57, "sensor", "finish", 0]
   }
 ]

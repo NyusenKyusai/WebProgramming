@@ -61,8 +61,7 @@ class defineSB extends defineBody {
     uniquename,
     angle,
     scale,
-    world,
-    level
+    world
   ) {
     //Getting the main class's assignments that all bodies have
     super(density, friction, restitution, x, y, scale, world);
@@ -77,7 +76,6 @@ class defineSB extends defineBody {
     // Assigning the userdata of the object to the id, uniquename, and level it belongs to
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
-    this.changeUserData("level", level);
   }
 }
 
@@ -94,8 +92,7 @@ class defineDB extends defineBody {
     objid,
     uniquename,
     scale,
-    world,
-    level
+    world
   ) {
     //Getting the main class's assignments that all bodies have
     super(density, friction, restitution, x, y, scale, world);
@@ -109,7 +106,6 @@ class defineDB extends defineBody {
     // Assigning the userdata of the object to the id, uniquename, and level it belongs to
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
-    this.changeUserData("level", level);
   }
 }
 
