@@ -18,18 +18,113 @@ mygame.getData("./components/gameData.json");
 mygame.addKeyboardHandler("keydown", mygame.handleKeyDown);
 mygame.addKeyboardHandler("keyup", mygame.handleKeyUp);
 
+mygame.addMouseHandler(
+  // Setting the target of the mouseclick to the b2can
+  document.getElementById("b2dcan"),
+  "mousedown",
+  mygame.handleMouseDown
+);
+
 // Setting LoZ contact to the b2Listener
-const LoZContact = handlers.b2Listener;
+const racerContact = handlers.b2Listener;
 
 // Calling PostSolve to handle collisions
-LoZContact.PostSolve = (contact, impulse) => {
+racerContact.PostSolve = (contact, impulse) => {
+  // Getting Fixture A and Fixture B's userdata
+  let fixA = contact.GetFixtureA().GetBody().GetUserData();
+  let fixB = contact.GetFixtureB().GetBody().GetUserData();
+};
+
+racerContact.BeginContact = (contact) => {
   // Getting Fixture A and Fixture B's userdata
   let fixA = contact.GetFixtureA().GetBody().GetUserData();
   let fixB = contact.GetFixtureB().GetBody().GetUserData();
 
-  if (fixA) {
+  if (fixA.id == "player" && fixB.id == "sensor") {
+    if (fixB.uniquename == "start") {
+      let index = mygame.findPlayer(mygame.player, fixA.uniquename);
+
+      let condition = mygame.player[index].moveObject.start;
+
+      if (condition) {
+        mygame.player[index].moveObject.start = false;
+      } else {
+        mygame.player[index].moveObject.start = true;
+      }
+
+      //console.log(mygame.player[index].moveObject.start);
+    }
+    if (fixB.uniquename == "finish") {
+      let index = mygame.findPlayer(mygame.player, fixA.uniquename);
+
+      let condition = mygame.player[index].moveObject.finish;
+
+      if (condition) {
+        mygame.player[index].moveObject.finish = false;
+      } else {
+        mygame.player[index].moveObject.finish = true;
+      }
+
+      if (
+        mygame.player[index].moveObject.start &&
+        mygame.player[index].moveObject.finish
+      ) {
+        mygame.podium.push(fixA.uniquename);
+      }
+
+      //console.log(mygame.player[index].moveObject.finish);
+    }
+
+    if (fixB.uniquename == "powerUp") {
+      let index = mygame.findPlayer(mygame.player, fixA.uniquename);
+
+      if (!mygame.player[index].moveObject.item) {
+        mygame.getItem(mygame.player[index]);
+      }
+    }
+  } else if (fixB.id == "player" && fixA.id == "sensor") {
+    if (fixA.uniquename == "start") {
+      let index = mygame.findPlayer(mygame.player, fixB.uniquename);
+
+      let condition = mygame.player[index].moveObject.start;
+
+      if (condition) {
+        mygame.player[index].moveObject.start = false;
+      } else {
+        mygame.player[index].moveObject.start = true;
+      }
+
+      //console.log(mygame.player[index].moveObject.start);
+    }
+    if (fixA.uniquename == "finish") {
+      let index = mygame.findPlayer(mygame.player, fixB.uniquename);
+
+      let condition = mygame.player[index].moveObject.finish;
+
+      if (condition) {
+        mygame.player[index].moveObject.finish = false;
+      } else {
+        mygame.player[index].moveObject.finish = true;
+      }
+
+      if (
+        mygame.player[index].moveObject.start &&
+        mygame.player[index].moveObject.finish
+      ) {
+        mygame.podium.push(fixB.uniquename);
+      }
+
+      //console.log(mygame.player[index].moveObject.finish);
+    }
+  }
+  if (fixA.uniquename == "powerUp") {
+    let index = mygame.findPlayer(mygame.player, fixA.uniquename);
+
+    if (!mygame.player[index].moveObject.item) {
+      mygame.getItem(mygame.player[index]);
+    }
   }
 };
 
 // Setting the contact listener of the world object to LoZContact
-mygame.world.SetContactListener(LoZContact);
+mygame.world.SetContactListener(racerContact);

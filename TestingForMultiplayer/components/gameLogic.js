@@ -1,6 +1,6 @@
 // Importing the shortcuts, the body creation classes, and the event handlers
 import * as shortcut from "./shortcuts.js";
-import { defineSB, defineDB } from "./classLib.js";
+import { defineSB, defineDB, defineDCB } from "./classLib.js";
 import * as handlers from "./eventHandlers.js";
 
 // Game class that has main reusable functions
@@ -98,9 +98,9 @@ class Game {
     this.itemList.push(item);
     // If statement to stop the player from falling asleep
     if (item.userdata.id === "sensor") {
-      console.log(item.userdata.uniquename);
+      //console.log(item.userdata.uniquename);
       item.GetBody().GetFixtureList().m_isSensor = true;
-      console.log(item.GetBody().GetFixtureList().IsSensor());
+      //console.log(item.GetBody().GetFixtureList().IsSensor());
     }
   };
 
@@ -170,7 +170,7 @@ class Game {
         gamedata.length = 0;
         // If this is the start of the game, it calls the update function to initialise it
         if (this.gameStart) {
-          console.log("first?");
+          //console.log("first?");
           this.init();
           this.update();
 
@@ -213,6 +213,9 @@ class Game {
 // Class that extends the main class and adds logic to make the game specific to Legend of Zelda
 class LoZGame extends Game {
   player = [];
+  podium = [];
+  max = 5;
+  min = 1;
 
   init = () => {
     this.player = this.getPlayer();
@@ -235,6 +238,10 @@ class LoZGame extends Game {
     });
     //console.log(player[0].GetBody().GetAngle());
     //console.log(Math.tan(Math.PI));
+    //console.log(this.podium);
+    if (this.podium.length == 1) {
+      //console.log(this.podium);
+    }
   };
 
   // Method to get the body in the item list that is the player
@@ -245,6 +252,9 @@ class LoZGame extends Game {
       accel: false,
       reverse: false,
       shoot: false,
+      start: false,
+      finish: false,
+      topSpeed: 10,
     };
 
     // Initialise the player variable
@@ -289,12 +299,13 @@ class LoZGame extends Game {
 
     if (player.moveObject.accel) {
       // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-      this.applyImpulse(player.player, 1);
+      this.applyImpulse(player.player, 1, player.moveObject.topSpeed);
+      //console.log(player.moveObject.topSpeed);
     }
 
     if (player.moveObject.reverse) {
       // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-      this.applyImpulse(player.player, -1);
+      this.applyImpulse(player.player, -1, player.moveObject.topSpeed);
     }
   };
 
@@ -321,22 +332,22 @@ class LoZGame extends Game {
   };
 
   // Method to set the linear velocity by taking the body, the x and the y
-  applyImpulse = (body, direction) => {
+  applyImpulse = (body, direction, topSpeed) => {
     let multiplier = this.getDirection(body.GetBody().GetAngle());
 
     // Creates a new b2Vector and sets the linear velocity of the body
     if (
-      (body.GetBody().GetLinearVelocity().x < 15 ||
-        body.GetBody().GetLinearVelocity().y < 15) &&
-      (body.GetBody().GetLinearVelocity().x > -15 ||
-        body.GetBody().GetLinearVelocity().y > -15)
+      (body.GetBody().GetLinearVelocity().x < topSpeed ||
+        body.GetBody().GetLinearVelocity().y < topSpeed) &&
+      (body.GetBody().GetLinearVelocity().x > -1 * topSpeed ||
+        body.GetBody().GetLinearVelocity().y > -1 * topSpeed)
     ) {
       body
         .GetBody()
         .ApplyImpulse(
           new shortcut.b2Vec2(
-            (multiplier.x * direction) / 10,
-            (multiplier.y * direction) / 10
+            (multiplier.x * direction) / topSpeed,
+            (multiplier.y * direction) / topSpeed
           ),
           body.GetBody().GetWorldCenter()
         );
@@ -412,12 +423,118 @@ class LoZGame extends Game {
   };
 
   // Method to handle mouse down
-  handleMouseDown = () => {};
+  handleMouseDown = () => {
+    this.player.forEach((player) => {
+      if (player.moveObject.item == "boost") {
+        player.moveObject.topSpeed = 3;
+
+        player.moveObject.item = false;
+        this.createTimeout("boost", player);
+      } else if (player.moveObject.item == "shell") {
+        this.shootShell(player);
+
+        player.moveObject.item = false;
+      }
+    });
+  };
+
+  getShellPosition = (playerBody) => {
+    let direction = this.getDirection(playerBody.GetBody().GetAngle());
+
+    return {
+      position: playerBody.GetBody().GetPosition(),
+      direction: direction,
+    };
+  };
+
+  shootShell = (player) => {
+    let body = player.player;
+
+    let shellPosition = this.getShellPosition(body);
+
+    let density = 1.0;
+    let friction = 0.5;
+    let restitution = 0.2;
+    let x =
+      shellPosition.position.x * this.scale +
+      shellPosition.direction.x * this.scale;
+    let y =
+      shellPosition.position.y * this.scale +
+      shellPosition.direction.y * this.scale;
+    let radius = 2.5;
+    let objid = "shell";
+    let uniquename = player.player.GetBody().GetUserData().uniquename;
+
+    let shell = new defineDCB(
+      density,
+      friction,
+      restitution,
+      x,
+      y,
+      radius,
+      objid,
+      uniquename,
+      this.scale,
+      this.world
+    );
+
+    //console.log(shell.GetBody().GetPosition());
+    //console.log(body.GetBody().GetPosition());
+
+    shell
+      .GetBody()
+      .ApplyImpulse(
+        new shortcut.b2Vec2(
+          shellPosition.direction.x / 8,
+          shellPosition.direction.y / 8
+        ),
+        shell.GetBody().GetWorldCenter()
+      );
+
+    this.createTimeout("shell", shell);
+  };
+
+  createTimeout = (condition, player) => {
+    switch (condition) {
+      case "boost":
+        setTimeout(function () {
+          player.moveObject.topSpeed = 10;
+        }, 1000);
+        break;
+      case "shell":
+        setTimeout(() => {
+          this.destroylist.push(player.GetBody());
+        }, 6000);
+        break;
+    }
+  };
 
   findIndex = (array, code) => {
     let c = array.findIndex((element) => element == code);
 
     return c;
+  };
+
+  findPlayer = (array, code) => {
+    let c = array.findIndex(
+      (element) => element.player.GetBody().GetUserData().uniquename == code
+    );
+
+    return c;
+  };
+
+  getItem = (player) => {
+    let item = Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
+
+    player.moveObject.item = item;
+
+    if (player.moveObject.item == 1) {
+      player.moveObject.item = "boost";
+    } else {
+      player.moveObject.item = "shell";
+    }
+
+    console.log(player.moveObject.item);
   };
 }
 

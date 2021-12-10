@@ -109,5 +109,27 @@ class defineDB extends defineBody {
   }
 }
 
+class defineDCB extends defineBody {
+  constructor(
+    density,
+    friction,
+    restitution,
+    x,
+    y,
+    r,
+    objid,
+    uniquename,
+    scale,
+    world
+  ) {
+    super(density, friction, restitution, x, y, scale, world);
+    this.bodyDef.type = shortcut.b2Body.b2_dynamicBody;
+    this.fixDef.shape = new shortcut.b2CircleShape(r / scale);
+    this.createObj(world);
+    this.changeUserData("id", objid);
+    this.changeUserData("uniquename", uniquename);
+  }
+}
+
 // Exporting the two classes
-export { defineSB, defineDB };
+export { defineSB, defineDB, defineDCB };

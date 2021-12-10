@@ -224,10 +224,34 @@
   },
   {
     "type": "static",
-    "objdata": [20, 0.5, 0.2, 1005, 596, 2, 57, "sensor", "start", 0]
+    "objdata": [20, 0.5, 0.2, 1005, 596, 2, 57, "sensor", "finish", 0]
   },
   {
     "type": "static",
-    "objdata": [20, 0.5, 0.2, 965, 596, 2, 57, "sensor", "finish", 0]
+    "objdata": [20, 0.5, 0.2, 965, 596, 2, 57, "sensor", "start", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 530, 420, 5, 5, "sensor", "powerUp", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 490, 420, 5, 5, "sensor", "powerUp", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1505, 125, 5, 5, "sensor", "powerUp", 50]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1545, 115, 5, 5, "sensor", "powerUp", 50]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1000, 832, 5, 5, "sensor", "powerUp", 0]
+  },
+  {
+    "type": "static",
+    "objdata": [20, 0.5, 0.2, 1000, 792, 5, 5, "sensor", "powerUp", 0]
   }
 ]
