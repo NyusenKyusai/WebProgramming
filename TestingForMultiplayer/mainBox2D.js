@@ -1,15 +1,9 @@
 // Importing the mouse and keyboard handles as well as the Box2DWeb Implementation Class
 import * as handlers from "./components/eventHandlers.js";
-import { LoZGame } from "./components/gameLogic.js";
-import localStorageClass from "./components/localStorageClass.js";
-//import EaselGame from "./components/gameLogic.js";
-
-const localObject = new localStorageClass(3);
-
-let json = localObject.getJSONObject("game");
+import { WebRacer } from "./components/gameLogic.js";
 
 // Calling the Box2DWeb class and setting it to a variable with on the b2dcan canvas
-const mygame = new LoZGame(900, 1800, 30, 0, 0, 60, "b2dcan");
+const mygame = new WebRacer(900, 1800, 30, 0, 0, 60, "b2dcan");
 // Calling the setupDebugDraw method
 mygame.setupDebugDraw();
 // Getting the data and creating the world bodies for level 1

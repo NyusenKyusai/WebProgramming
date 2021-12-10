@@ -211,7 +211,7 @@ class Game {
 }
 
 // Class that extends the main class and adds logic to make the game specific to Legend of Zelda
-class LoZGame extends Game {
+class WebRacer extends Game {
   player = [];
   podium = [];
   max = 5;
@@ -539,4 +539,4 @@ class LoZGame extends Game {
 }
 
 // Exporting the two Game classes, Box2D and Easel
-export { LoZGame };
+export { WebRacer };

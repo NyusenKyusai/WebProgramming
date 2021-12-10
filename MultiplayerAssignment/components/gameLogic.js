@@ -1,6 +1,6 @@
 // Importing the shortcuts, the body creation classes, and the event handlers
 import * as shortcut from "./shortcuts.js";
-import { defineSB, defineDB } from "./classLib.js";
+import { defineSB, defineDB, defineDCB } from "./classLib.js";
 import * as handlers from "./eventHandlers.js";
 
 // Game class that has main reusable functions
@@ -24,7 +24,7 @@ class Game {
   // Invisibility frames for when a player get hurt
   invisible = false;
   // Array that holds the static objects
-  collisionList = ["wall", "ground", "sensor"];
+  collisionList = ["wall", "sensor"];
   // Current level
   currentLevel = 1;
   // Array that holds all the bodies in the world
@@ -93,21 +93,14 @@ class Game {
   gameLogic = () => {};
 
   // Add item funciton that pushes the body to the item list array
-  addItem = (item, type) => {
+  addItem = (item) => {
     // Takes the item and pushes it into the item list array
     this.itemList.push(item);
     // If statement to stop the player from falling asleep
-    if (item.userdata.id === "player") {
-      // Setting the player sleep to false
-      item.GetBody().allowSleep = false;
-
-      //console.log(item.GetBody().allowSleep);
-    }
-    // If statement to stop dynamic players from rotating
-    if (type == "dynamic") {
-      // Setting angular damping to the highest value
-      // Setting allow rotation to false does not work
-      item.GetBody().SetAngularDamping(100000000000);
+    if (item.userdata.id === "sensor") {
+      //console.log(item.userdata.uniquename);
+      item.GetBody().GetFixtureList().m_isSensor = true;
+      //console.log(item.GetBody().GetFixtureList().IsSensor());
     }
   };
 
@@ -124,8 +117,7 @@ class Game {
 
   // getData function that uses XMLHTTPRequest to grab the body information from the json and create the bodies
   // takes in the level the game starts with and the location of the json
-  getData = (datasource, level, json) => {
-    this.currentLevel = level;
+  getData = (datasource) => {
     // Setting the XHR variable to the http request class
     let XHR = new XMLHttpRequest();
     // setting the onreadystatechange to callback function that creates the bodies
@@ -137,65 +129,51 @@ class Game {
 
         // Taking the gamedata json and running code for each entry using a foreach loop and passing the item
         gamedata.forEach((item) => {
-          // If statement to add bodies to the world depending on what level the player is in
-          if (
-            (item.level == level || item.level == 0) &&
-            !json["level" + this.currentLevel].array.includes(item.objdata[8])
-          ) {
-            // Switch case that calls the defineBody according to the type of the body in the json
-            switch (item.type) {
-              // When the body is a static object
-              case "static":
-                // Calling the add item method to add a new body to the item list
-                this.addItem(
-                  // Calling the class and adding the objdata from the json as well as the scale, world, and the level of the body
-                  new defineSB(
-                    ...item.objdata,
-                    this.scale,
-                    this.world,
-                    item.level
-                  ),
-                  // Sending the type to the add item method
-                  item.type
-                );
-                break;
-              // When the body is a dynamic object
-              case "dynamic":
-                // Calling the add item method to add a new body to the item list
-                this.addItem(
-                  // Calling the class and adding the objdata from the json as well as the scale, world, and the level of the body
-                  new defineDB(
-                    ...item.objdata,
-                    this.scale,
-                    this.world,
-                    item.level
-                  ),
-                  // Sending the type to the add item method
-                  item.type
-                );
-                break;
-              // In case the item in the json is incorrect
-              default:
-                console.log("Item type not recognised");
-            }
-            // If the userdata is an object
-            if (typeof item.userdata == "object") {
-              // For loop through the user data object
-              for (let key in item.userdata) {
-                // Adding the userdata to the itemlist entry using the key
-                this.itemList[this.itemList.length - 1].changeUserData(
-                  key,
-                  item.userdata[key]
-                );
-              }
+          // Switch case that calls the defineBody according to the type of the body in the json
+          switch (item.type) {
+            // When the body is a static object
+            case "static":
+              // Calling the add item method to add a new body to the item list
+              this.addItem(
+                // Calling the class and adding the objdata from the json as well as the scale, world, and the level of the body
+                new defineSB(...item.objdata, this.scale, this.world),
+                // Sending the type to the add item method
+                item.type
+              );
+              break;
+            // When the body is a dynamic object
+            case "dynamic":
+              // Calling the add item method to add a new body to the item list
+              this.addItem(
+                // Calling the class and adding the objdata from the json as well as the scale, world, and the level of the body
+                new defineDB(...item.objdata, this.scale, this.world),
+                // Sending the type to the add item method
+                item.type
+              );
+              break;
+            // In case the item in the json is incorrect
+            default:
+              console.log("Item type not recognised");
+          }
+          // If the userdata is an object
+          if (typeof item.userdata == "object") {
+            // For loop through the user data object
+            for (let key in item.userdata) {
+              // Adding the userdata to the itemlist entry using the key
+              this.itemList[this.itemList.length - 1].changeUserData(
+                key,
+                item.userdata[key]
+              );
             }
           }
         });
         gamedata.length = 0;
         // If this is the start of the game, it calls the update function to initialise it
         if (this.gameStart) {
-          console.log("first?");
+          //console.log("first?");
+          this.init();
           this.update();
+
           // Sets gameStart to false
           this.gameStart = false;
         }
@@ -229,175 +207,105 @@ class Game {
     console.log(e);
   };
 
-  // Function to increase the level
-  increaseLevel = () => {
-    this.currentLevel++;
-  };
+  init = () => {};
 }
 
 // Class that extends the main class and adds logic to make the game specific to Legend of Zelda
-class LoZGame extends Game {
-  allowJump = true;
-  // Timer for slime movement
-  slimeTimer = true;
-  // Attacking flag
-  attacking;
-  // Enemy array
-  enemyArray = [];
-  // Time out for attacking/ Attempted to clear timeout whenever the user attacked again but it did not work
-  attackTiming;
+class WebRacer extends Game {
+  player = [];
+  podium = [];
+  max = 5;
+  min = 1;
 
-  // Method to add bodies to the world using getData method when the player changes level
-  spawn = (uniquename, json) => {
-    // Sets the itemlist to an empty array
-    this.itemList = [];
-    // Switch case that takes the sensor unique name and passes the level to the get data method
-    switch (uniquename) {
-      case "sensor1":
-        this.getData("./components/gameData.json", 2, json);
-        break;
-      case "sensor2":
-        this.getData("./components/gameData.json", 1, json);
-        break;
-      case "sensor3":
-        this.getData("./components/gameData.json", 3, json);
-        break;
-      case "sensor4":
-        this.getData("./components/gameData.json", 2, json);
-        break;
-    }
-  };
-
-  // Method to create and return the bodies from the item list that are enemies
-  getEnemy = () => {
-    let enemyArray = [];
-
-    // For loop that iterates through the item list
-    for (let item in this.itemList) {
-      // If statement that pushes the item to the enemy array if it is an enemy
-      if (
-        this.itemList[item].userdata.id == "orc" ||
-        this.itemList[item].userdata.id == "slime" ||
-        this.itemList[item].userdata.id == "boss"
-      ) {
-        enemyArray.push(this.itemList[item]);
-
-        //console.log(item);
-      }
-    }
-
-    // Returns the array
-    return enemyArray;
-  };
-
-  // Method to get the distance of one object to another in the canvas
-  getDistance = (player, enemy) => {
-    // Calculates the distance using the world center's x coordinate
-    let distance =
-      player.GetBody().GetWorldCenter().x - enemy.GetBody().GetWorldCenter().x;
-    // Returns the distance
-    return distance;
-  };
-
-  // Method to determine what direction the AI needs to move to get closer to the player
-  getDirection = (distance) => {
-    // Initialising the variable
-    let direction = 0;
-    // If the distance is larger than 0
-    if (distance > 1) {
-      // The direction is positive
-      direction = 1;
-      // If the distance is negative
-    } else if (distance < -1) {
-      // The direction is negative
-      direction = -1;
-    }
-    // Returning the direction
-    return direction;
-  };
-
-  // Method to apply impulse to a fixture using the direction, and the forces in the x and y
-  applyImpulse = (direction, fixture, x, y) => {
-    // Gets a fixture's body and applies an impulse to it
-    fixture.GetBody().ApplyImpulse(
-      // Creates a new b2Vector and uses the direction to determine where in x it should be applied
-      new shortcut.b2Vec2(x * direction, y),
-      // Applying it to the world center of the fixture
-      fixture.GetBody().GetWorldCenter()
-    );
-  };
-
-  // Method takes in a body and a direction and applies different kinds of impulses depending of the type of enemy
-  enemyMove = (enemy, direction) => {
-    // Used to reorient the this keyword inside a interval function
-    let self = this;
-    // Switch case that uses the enemy id
-    switch (enemy.userdata.id) {
-      // If the case is an orc, it moves straight towards the player
-      case "orc":
-        // Calls the apply impulse function
-        this.applyImpulse(direction, enemy, 3, 0);
-        break;
-      // If the enemy is a slime, it moves in jumps towards the player
-      case "slime":
-        // I tried setting a timer so that the slimes would have a cool down between jumps
-        // The interval would not work correctly, and the objects would fly upwards infinitely
-        // It was scrapped
-
-        // if (this.slimeTimer == true) {
-        this.applyImpulse(direction, enemy, 3, -10);
-
-        //   this.slimeTimer = false;
-        // }
-
-        // setInterval(function () {
-        //   self.slimeTimer = true;
-        // }, 5000);
-
-        break;
-      // If the case is the boss, it moves like the orc
-      case "boss":
-        // Calls the apply impulse function
-        this.applyImpulse(direction, enemy, 3, 0);
-        break;
-    }
+  init = () => {
+    this.player = this.getPlayer();
   };
 
   // Method that handles enemy movement
   gameLogic = () => {
-    // Getting the body from the item list that is the player
-    let player = this.getPlayer();
-    // Setting the enemyArray by calling the getEnemy method
-    this.enemyArray = this.getEnemy();
-    // For loop through the enemyArray
-    for (let enemy in this.enemyArray) {
-      // Getting the distance from the player and the enemy by calling the distance method
-      let distance = this.getDistance(player, this.enemyArray[enemy]);
-      // Getting the direction by using the direction method
-      let direction = this.getDirection(distance);
-      // If statement that determines the direction of enemy movement
-      if (direction == -1) {
-        // LinerVelocity in x is never 0, so if it is lower than -1 and greater than 0
-        if (
-          this.enemyArray[enemy].GetBody().GetLinearVelocity().x > -1 &&
-          this.enemyArray[enemy].GetBody().GetLinearVelocity().x <= 0
-        ) {
-          // Calls the enemyMove method
-          this.enemyMove(this.enemyArray[enemy], direction);
-        }
-      } else if (direction == 1) {
-        // LinerVelocity in x is never 0, so if it is lower than 1 and greater than 0
-        if (
-          this.enemyArray[enemy].GetBody().GetLinearVelocity().x < 1 &&
-          this.enemyArray[enemy].GetBody().GetLinearVelocity().x >= 0
-        ) {
-          // Calls the enemyMove method
-          this.enemyMove(this.enemyArray[enemy], direction);
-        }
-      }
+    this.player.forEach((player) => {
+      this.move(player);
 
-      // Direction is set to 0
-      direction = 0;
+      let x = player.player.GetBody().GetLinearVelocity().x;
+      let y = player.player.GetBody().GetLinearVelocity().y;
+
+      x -= x * 0.02;
+      y -= y * 0.02;
+
+      player.player.GetBody().SetLinearVelocity(new shortcut.b2Vec2(x, y));
+
+      //console.log(player.GetBody().GetLinearVelocity());
+    });
+    //console.log(player[0].GetBody().GetAngle());
+    //console.log(Math.tan(Math.PI));
+    //console.log(this.podium);
+    if (this.podium.length == 1) {
+      //console.log(this.podium);
+    }
+  };
+
+  // Method to get the body in the item list that is the player
+  getPlayer = () => {
+    let moveObject = {
+      left: false,
+      right: false,
+      accel: false,
+      reverse: false,
+      shoot: false,
+      start: false,
+      finish: false,
+      topSpeed: 10,
+    };
+
+    // Initialise the player variable
+    let player = [];
+
+    //console.log(this.itemList);
+    //console.log(this.itemList.length);
+
+    // For each loop over the item list
+    for (let i = 0; i < this.itemList.length; i++) {
+      if (this.itemList[i].userdata.id === "player") {
+        // Setting the player to the item
+        player.push({
+          player: this.itemList[i],
+          moveObject: moveObject,
+          item: null,
+          start: false,
+          finish: false,
+        });
+      }
+    }
+
+    // Returning the player variable
+    return player;
+  };
+
+  // Method that takes the key code and determines the linear velocity of depending on the keycode
+  move = (player) => {
+    //console.log(object);
+    // If the keycode is left and allowMove is true
+    if (player.moveObject.left) {
+      // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
+      this.setAngularVelocity(player.player, -1);
+      // If the keycode is right and allowMove is true
+    }
+
+    if (player.moveObject.right) {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      this.setAngularVelocity(player.player, 1);
+      // If the keycode is space bar and allowMove is true
+    }
+
+    if (player.moveObject.accel) {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      this.applyImpulse(player.player, 1, player.moveObject.topSpeed);
+      //console.log(player.moveObject.topSpeed);
+    }
+
+    if (player.moveObject.reverse) {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      this.applyImpulse(player.player, -1, player.moveObject.topSpeed);
     }
   };
 
@@ -413,136 +321,222 @@ class LoZGame extends Game {
     return body.GetBody().GetLinearVelocity().y;
   };
 
+  getDirection = (angle) => {
+    let x = 0;
+    let y = 0;
+
+    x = Math.cos(angle) * -1;
+    y = Math.sin(angle) * -1;
+
+    return { x: x, y: y };
+  };
+
   // Method to set the linear velocity by taking the body, the x and the y
+  applyImpulse = (body, direction, topSpeed) => {
+    let multiplier = this.getDirection(body.GetBody().GetAngle());
+
+    // Creates a new b2Vector and sets the linear velocity of the body
+    if (
+      (body.GetBody().GetLinearVelocity().x < topSpeed ||
+        body.GetBody().GetLinearVelocity().y < topSpeed) &&
+      (body.GetBody().GetLinearVelocity().x > -1 * topSpeed ||
+        body.GetBody().GetLinearVelocity().y > -1 * topSpeed)
+    ) {
+      body
+        .GetBody()
+        .ApplyImpulse(
+          new shortcut.b2Vec2(
+            (multiplier.x * direction) / topSpeed,
+            (multiplier.y * direction) / topSpeed
+          ),
+          body.GetBody().GetWorldCenter()
+        );
+    }
+  };
+
+  // Method to set the linear velocity by taking the body, the x and the y
+  setAngularVelocity = (body, value) => {
+    // Creates a new b2Vector and sets the linear velocity of the body
+    body.GetBody().SetAngularVelocity(value);
+  };
+
   setLinearVelocity = (body, x, y) => {
     // Creates a new b2Vector and sets the linear velocity of the body
     body.GetBody().SetLinearVelocity(new shortcut.b2Vec2(x, y));
   };
 
-  // Method to get the body in the item list that is the player
-  getPlayer = () => {
-    // Initialise the player variable
-    let player;
-
-    //console.log(this.itemList);
-    //console.log(this.itemList.length);
-
-    // For each loop over the item list
-    this.itemList.forEach((item) => {
-      // If statement to determine if the item is the player
-      if (item.userdata.id === "player") {
-        // Setting the player to the item
-        player = item;
-      }
-
-      //console.log(item);
-    });
-    // Returning the player variable
-    return player;
-  };
-
-  // Method to returning the invisible boolean
-  getInvisible = () => {
-    return this.invisible;
-  };
-
-  // Method to return the allow move boolean
-  getAllowMove = () => {
-    return this.allowMove;
-  };
-
-  // Method set the invisible boolean variable using a passed boolean
-  setInvisible = (boolean) => {
-    this.invisible = boolean;
-  };
-
-  // Method set the allow move boolean variable using a passed boolean
-  setAllowMove = (boolean) => {
-    this.allowMove = boolean;
-  };
-
-  // Method that takes the key code and determines the linear velocity of depending on the keycode
-  move = (keyCode) => {
-    // Calls the getPlayer method and setting it to a variable
-    let player = this.getPlayer();
-
-    // If the keycode is left and allowMove is true
-    if (keyCode == 65 && this.allowMove) {
-      // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
-      this.setLinearVelocity(player, -4, this.getLinearY(player));
-      // If the keycode is right and allowMove is true
-    } else if (keyCode == 68 && this.allowMove) {
-      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-      this.setLinearVelocity(player, 4, this.getLinearY(player));
-      // If the keycode is space bar and allowMove is true
-    } else if (keyCode == 32 && this.allowMove) {
-      if (this.allowJump) {
-        this.allowJump = false;
-        // Setting the linear velocity of player to going up while keeping the linear velocity in the x direction
-        this.setLinearVelocity(player, this.getLinearX(player), -5);
-      }
-    }
-  };
-
   // Method to stop the player from moving
-  stopMove = (keyCode) => {
-    // Get the player
-    let player = this.getPlayer();
-    // If the keycode is a or d on key up
-    if (keyCode == 65 || keyCode == 68) {
-      // The player body that sets the linear velocity
-      player.GetBody().SetLinearVelocity(
-        // Creates a new b2Vector and sets the x to zero while getting the y linear velocity
-        new shortcut.b2Vec2(0, player.GetBody().GetLinearVelocity().y)
-      );
+  stopMove = (player) => {
+    //console.log("sup");
+
+    if (!player.moveObject.left || !player.moveObject.right) {
+      player.player.GetBody().SetAngularVelocity(0);
     }
   };
 
   // Method that calls the move method and sends in the keycode
   handleKeyDown = (e) => {
-    // Calls the move method
-    this.move(e.keyCode);
+    // Calls the getPlayer method and setting it to a variable
+
+    this.player.forEach((player) => {
+      // If the keycode is left and allowMove is true
+      if (e.keyCode == 65) {
+        // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
+        player.moveObject.left = true;
+        // If the keycode is right and allowMove is true
+      } else if (e.keyCode == 68) {
+        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+        player.moveObject.right = true;
+        // If the keycode is space bar and allowMove is true
+      } else if (e.keyCode == 87) {
+        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+        player.moveObject.accel = true;
+      } else if (e.keyCode == 83) {
+        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+        player.moveObject.reverse = true;
+      }
+    });
   };
 
   // Method that calls the stopMove method and sends in the keycode
   handleKeyUp = (e) => {
-    // Calls the stopMove method
-    this.stopMove(e.keyCode);
-  };
-
-  // Method that handles the attacking flag and calls a timeout
-  attack = () => {
-    // Sets attacking to true
-    this.attacking = true;
-    // Sets attack timing to a time out that triggers after 1 sec
-    this.attackTiming = setTimeout(() => {
-      // Sets attacking to false
-      this.attacking = false;
-    }, 1000);
+    this.player.forEach((player) => {
+      // If the keycode is left and allowMove is true
+      if (e.keyCode == 65) {
+        // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
+        player.moveObject.left = false;
+        this.stopMove(player);
+        // If the keycode is right and allowMove is true
+      } else if (e.keyCode == 68) {
+        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+        player.moveObject.right = false;
+        this.stopMove(player);
+        // If the keycode is space bar and allowMove is true
+      } else if (e.keyCode == 87) {
+        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+        player.moveObject.accel = false;
+      } else if (e.keyCode == 83) {
+        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+        player.moveObject.reverse = false;
+      }
+    });
   };
 
   // Method to handle mouse down
   handleMouseDown = () => {
-    // Calls the attack method
-    this.attack();
+    this.player.forEach((player) => {
+      if (player.moveObject.item == "boost") {
+        player.moveObject.topSpeed = 3;
+
+        player.moveObject.item = false;
+        this.createTimeout("boost", player);
+      } else if (player.moveObject.item == "shell") {
+        this.shootShell(player);
+
+        player.moveObject.item = false;
+      }
+    });
   };
 
-  changeJSONObject = (json, uniquename) => {
-    switch (this.currentLevel) {
-      case 1:
-        json.level1.array.push(uniquename);
-        json.level1.kills += 1;
+  getShellPosition = (playerBody) => {
+    let direction = this.getDirection(playerBody.GetBody().GetAngle());
+
+    return {
+      position: playerBody.GetBody().GetPosition(),
+      direction: direction,
+    };
+  };
+
+  shootShell = (player) => {
+    let body = player.player;
+
+    let shellPosition = this.getShellPosition(body);
+
+    let density = 1.0;
+    let friction = 0.5;
+    let restitution = 0.2;
+    let x =
+      shellPosition.position.x * this.scale +
+      shellPosition.direction.x * this.scale;
+    let y =
+      shellPosition.position.y * this.scale +
+      shellPosition.direction.y * this.scale;
+    let radius = 2.5;
+    let objid = "shell";
+    let uniquename = player.player.GetBody().GetUserData().uniquename;
+
+    let shell = new defineDCB(
+      density,
+      friction,
+      restitution,
+      x,
+      y,
+      radius,
+      objid,
+      uniquename,
+      this.scale,
+      this.world
+    );
+
+    //console.log(shell.GetBody().GetPosition());
+    //console.log(body.GetBody().GetPosition());
+
+    shell
+      .GetBody()
+      .ApplyImpulse(
+        new shortcut.b2Vec2(
+          shellPosition.direction.x / 8,
+          shellPosition.direction.y / 8
+        ),
+        shell.GetBody().GetWorldCenter()
+      );
+
+    this.createTimeout("shell", shell);
+  };
+
+  createTimeout = (condition, player) => {
+    switch (condition) {
+      case "boost":
+        setTimeout(function () {
+          player.moveObject.topSpeed = 10;
+        }, 1000);
         break;
-      case 2:
-        json.level2.array.push(uniquename);
-        json.level2.kills += 1;
-        break;
-      case 3:
-        json.level3.array.push(uniquename);
-        json.level3.kills += 1;
+      case "shell":
+        setTimeout(() => {
+          this.destroylist.push(player.GetBody());
+        }, 6000);
         break;
     }
+  };
 
-    return json;
+  findIndex = (array, code) => {
+    let c = array.findIndex((element) => element == code);
+
+    return c;
+  };
+
+  findPlayer = (array, code) => {
+    let c = array.findIndex(
+      (element) => element.player.GetBody().GetUserData().uniquename == code
+    );
+
+    return c;
+  };
+
+  getItem = (player) => {
+    let item = Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
+
+    player.moveObject.item = item;
+
+    if (player.moveObject.item == 1) {
+      player.moveObject.item = "boost";
+    } else {
+      player.moveObject.item = "shell";
+    }
+
+    console.log(player.moveObject.item);
   };
 }
+
+// Exporting the two Game classes, Box2D and Easel
+export { WebRacer };
