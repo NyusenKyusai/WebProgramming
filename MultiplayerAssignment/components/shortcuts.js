@@ -1,3 +1,5 @@
+const Box2D = require("box2dweb-commonjs").Box2D;
+
 /****
  * BOX2DWEB Definitions
  */
@@ -14,18 +16,19 @@ let b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
 let b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 let b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 let joint = new Box2D.Dynamics.Joints.b2DistanceJointDef();
+let contactListener = new Box2D.Dynamics.b2ContactListener();
 
-// Exporting all the variables
-export {
-  b2Vec2,
-  b2BodyDef,
-  b2Body,
-  b2FixtureDef,
-  b2Fixture,
-  b2World,
-  b2MassData,
-  b2PolygonShape,
-  b2CircleShape,
-  b2DebugDraw,
-  joint,
+module.exports = {
+  b2Vec2: b2Vec2,
+  b2BodyDef: b2BodyDef,
+  b2Body: b2Body,
+  b2FixtureDef: b2FixtureDef,
+  b2Fixture: b2Fixture,
+  b2World: b2World,
+  b2MassData: b2MassData,
+  b2PolygonShape: b2PolygonShape,
+  b2CircleShape: b2CircleShape,
+  b2DebugDraw: b2DebugDraw,
+  joint: joint,
+  contactListener: contactListener,
 };

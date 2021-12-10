@@ -1,5 +1,5 @@
 // Importing the Box2D Shortcuts
-import * as shortcut from "./shortcuts.js";
+const shortcut = require("./shortcuts.js");
 
 // Main class for creating Box2D bodies
 class defineBody {
@@ -76,6 +76,8 @@ class defineSB extends defineBody {
     // Assigning the userdata of the object to the id, uniquename, and level it belongs to
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
+    this.changeUserData("height", height);
+    this.changeUserData("width", width);
   }
 }
 
@@ -106,6 +108,8 @@ class defineDB extends defineBody {
     // Assigning the userdata of the object to the id, uniquename, and level it belongs to
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
+    this.changeUserData("height", height);
+    this.changeUserData("width", width);
   }
 }
 
@@ -128,8 +132,13 @@ class defineDCB extends defineBody {
     this.createObj(world);
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
+    this.changeUserData("height", r * 2);
+    this.changeUserData("width", r * 2);
   }
 }
 
-// Exporting the two classes
-export { defineSB, defineDB, defineDCB };
+module.exports = {
+  defineSB: defineSB,
+  defineDB: defineDB,
+  defineDCB: defineDCB,
+};

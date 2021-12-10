@@ -1,7 +1,9 @@
 "use strict";
 
+const shortcuts = require("./shortcuts.js");
+
 // Setting the variable to a shortcut
-let b2Listener = new Box2D.Dynamics.b2ContactListener();
+let b2Listener = shortcuts.contactListener;
 
 // Initializing the contact and collision variables
 b2Listener.BeginContact = (contact) => {};
@@ -39,5 +41,8 @@ class keyboardHandler {
   }
 }
 
-// Exporting the two event handlers as well as the contact listener variable
-export { b2Listener, mouseHandler, keyboardHandler };
+module.exports = {
+  b2Listener: b2Listener,
+  mouseHandler: mouseHandler,
+  keyboardHandler: keyboardHandler,
+};

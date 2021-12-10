@@ -3,7 +3,18 @@
     "type": "dynamic",
     "objdata": [10, 1.0, 0.2, 985, 633, 10, 5, "player", "player1"]
   },
-
+  {
+    "type": "dynamic",
+    "objdata": [10, 1.0, 0.2, 985, 633, 10, 5, "player", "player2"]
+  },
+  {
+    "type": "dynamic",
+    "objdata": [10, 1.0, 0.2, 985, 633, 10, 5, "player", "player3"]
+  },
+  {
+    "type": "dynamic",
+    "objdata": [10, 1.0, 0.2, 985, 633, 10, 5, "player", "player4"]
+  },
   {
     "type": "static",
     "objdata": [

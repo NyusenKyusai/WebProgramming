@@ -1,7 +1,8 @@
 // Importing the shortcuts, the body creation classes, and the event handlers
-import * as shortcut from "./shortcuts.js";
-import { defineSB, defineDB, defineDCB } from "./classLib.js";
-import * as handlers from "./eventHandlers.js";
+const shortcut = require("./shortcuts.js");
+const createLib = require("./classLib.js");
+const handlers = require("./eventHandlers.js");
+const data = require("./gameData.json");
 
 // Game class that has main reusable functions
 class Game {
@@ -35,9 +36,10 @@ class Game {
   keyboardHandler = [];
   // Array that holds all the keyboard handlers
   mouseHandler = [];
+  io;
 
   // Constructor that takes the necessary variables for the game
-  constructor(height, width, scale, gx, gy, framerate, canvasname) {
+  constructor(height, width, scale, gx, gy, framerate, io) {
     // Setting the variables to the constructor variables
     this.height = height;
     this.width = width;
@@ -46,32 +48,11 @@ class Game {
     this.gravity = new shortcut.b2Vec2(gx, gy);
     // Setting the framerate
     this.framerate = framerate;
-    // Getting the canvas in the html document and setting it to the variable
-    this.b2dcanvas = document.getElementById(canvasname);
-    // Setting the canvas context to the 2d
-    this.b2dctx = this.b2dcanvas.getContext("2d");
     // Creating the world with it's gravity
     this.world = new shortcut.b2World(this.gravity, true);
-  }
 
-  // Method to create the debug draw
-  setupDebugDraw = () => {
-    // Setting the debug variable to the debug draw shortcut
-    let debugDraw = new shortcut.b2DebugDraw();
-    // Setting the sprite of the debug draw to the 2d context of the canvas
-    debugDraw.SetSprite(this.b2dctx);
-    // Setting the draw scale to the scale variable
-    debugDraw.SetDrawScale(this.scale);
-    // Setting the fill alpha to 0.3
-    debugDraw.SetFillAlpha(0.3);
-    // Setting the thickness of the lines
-    debugDraw.SetLineThickness(1.0);
-    debugDraw.SetFlags(
-      shortcut.b2DebugDraw.e_shapeBit | shortcut.b2DebugDraw.e_jointBit
-    );
-    // Setting the debug draw of the world to the variable just created with it's flags
-    this.world.SetDebugDraw(debugDraw);
-  };
+    this.io = io;
+  }
 
   // Update function to draw the sprites
   update = () => {
@@ -79,16 +60,17 @@ class Game {
     this.world.Step(1 / this.framerate, 10, 10);
     // Calling the game logic function
     this.gameLogic();
-    this.world.DrawDebugData();
     this.world.ClearForces();
     // Not allowing the bodies to fall asleep
     // Otherwise the player object does not respond to key events
     this.world.m_allowSleep = false;
     // Calling the destroyList function to delete all the objects
     this.destroyList();
-    // Animating the window and recalling the update function
-    window.requestAnimationFrame(this.update);
+
+    this.io.emit("objectData", this.drawDOMObjects());
   };
+
+  drawDOMObjects = () => {};
 
   gameLogic = () => {};
 
@@ -117,72 +99,66 @@ class Game {
 
   // getData function that uses XMLHTTPRequest to grab the body information from the json and create the bodies
   // takes in the level the game starts with and the location of the json
-  getData = (datasource) => {
-    // Setting the XHR variable to the http request class
-    let XHR = new XMLHttpRequest();
-    // setting the onreadystatechange to callback function that creates the bodies
-    XHR.onreadystatechange = () => {
-      // If statement that runs the lines of code when the http request actually gets the json file
-      if (XHR.readyState == 4 && XHR.status == 200) {
-        // Parsing the http request into json
-        let gamedata = JSON.parse(XHR.responseText);
+  getData = () => {
+    let gamedata = data;
 
-        // Taking the gamedata json and running code for each entry using a foreach loop and passing the item
-        gamedata.forEach((item) => {
-          // Switch case that calls the defineBody according to the type of the body in the json
-          switch (item.type) {
-            // When the body is a static object
-            case "static":
-              // Calling the add item method to add a new body to the item list
-              this.addItem(
-                // Calling the class and adding the objdata from the json as well as the scale, world, and the level of the body
-                new defineSB(...item.objdata, this.scale, this.world),
-                // Sending the type to the add item method
-                item.type
-              );
-              break;
-            // When the body is a dynamic object
-            case "dynamic":
-              // Calling the add item method to add a new body to the item list
-              this.addItem(
-                // Calling the class and adding the objdata from the json as well as the scale, world, and the level of the body
-                new defineDB(...item.objdata, this.scale, this.world),
-                // Sending the type to the add item method
-                item.type
-              );
-              break;
-            // In case the item in the json is incorrect
-            default:
-              console.log("Item type not recognised");
-          }
-          // If the userdata is an object
-          if (typeof item.userdata == "object") {
-            // For loop through the user data object
-            for (let key in item.userdata) {
-              // Adding the userdata to the itemlist entry using the key
-              this.itemList[this.itemList.length - 1].changeUserData(
-                key,
-                item.userdata[key]
-              );
-            }
-          }
-        });
-        gamedata.length = 0;
-        // If this is the start of the game, it calls the update function to initialise it
-        if (this.gameStart) {
-          //console.log("first?");
-          this.init();
-          this.update();
+    // Parsing the http request into json
+    //let gamedata = JSON.parse(string);
 
-          // Sets gameStart to false
-          this.gameStart = false;
+    // Taking the gamedata json and running code for each entry using a foreach loop and passing the item
+    gamedata.forEach((item) => {
+      // Switch case that calls the defineBody according to the type of the body in the json
+      switch (item.type) {
+        // When the body is a static object
+        case "static":
+          // Calling the add item method to add a new body to the item list
+          this.addItem(
+            // Calling the class and adding the objdata from the json as well as the scale, world, and the level of the body
+            new createLib.defineSB(...item.objdata, this.scale, this.world),
+            // Sending the type to the add item method
+            item.type
+          );
+          break;
+        // When the body is a dynamic object
+        case "dynamic":
+          // Calling the add item method to add a new body to the item list
+          this.addItem(
+            // Calling the class and adding the objdata from the json as well as the scale, world, and the level of the body
+            new createLib.defineDB(...item.objdata, this.scale, this.world),
+            // Sending the type to the add item method
+            item.type
+          );
+          break;
+        // In case the item in the json is incorrect
+        default:
+          console.log("Item type not recognised");
+      }
+      // If the userdata is an object
+      if (typeof item.userdata == "object") {
+        // For loop through the user data object
+        for (let key in item.userdata) {
+          // Adding the userdata to the itemlist entry using the key
+          this.itemList[this.itemList.length - 1].changeUserData(
+            key,
+            item.userdata[key]
+          );
         }
       }
-    };
-    // Opening the GET to the json and getting information
-    XHR.open("GET", datasource, true);
-    // Sending the XHR
-    XHR.send();
+    });
+    gamedata.length = 0;
+    // If this is the start of the game, it calls the update function to initialise it
+    if (this.gameStart) {
+      //console.log("first?");
+      this.init();
+
+      // this.itemList.forEach((item) => {
+      //   console.log(item.GetBody().GetPosition());
+      //   //console.log("\n");
+      // });
+
+      // Sets gameStart to false
+      this.gameStart = false;
+    }
   };
 
   // Method to call the keyboard handler class and pushing the result to the keyboardHandler array
@@ -216,9 +192,16 @@ class WebRacer extends Game {
   podium = [];
   max = 5;
   min = 1;
+  interval;
 
   init = () => {
     this.player = this.getPlayer();
+
+    this.interval = setInterval(() => {
+      this.update();
+    }, 1000 / this.framerate);
+
+    this.update();
   };
 
   // Method that handles enemy movement
@@ -279,6 +262,67 @@ class WebRacer extends Game {
 
     // Returning the player variable
     return player;
+  };
+
+  drawDOMObjects = () => {
+    let ret = [];
+
+    for (let b = this.world.GetBodyList(); b; b = b.GetNext()) {
+      for (let f = b.GetFixtureList(); f; f = f.GetNext()) {
+        if (this.gameStart) {
+          let objectdata = this.getObjectInfo(f);
+
+          ret.push({
+            id: objectdata.id,
+            uniquename: objectdata.uniquename,
+            x: objectdata.x,
+            y: objectdata.y,
+            r: objectdata.r,
+            objwidth: objectdata.objwidth,
+            objheight: objectdata.objheight,
+          });
+        } else if (
+          f.GetBody().GetUserData().id == "player" ||
+          f.GetBody().GetUserData().id == "shell"
+        ) {
+          let objectdata = this.getObjectInfo(f);
+
+          ret.push({
+            id: objectdata.id,
+            uniquename: objectdata.uniquename,
+            x: objectdata.x,
+            y: objectdata.y,
+            r: objectdata.r,
+            objwidth: objectdata.objwidth,
+            objheight: objectdata.objheight,
+          });
+        }
+      }
+    }
+
+    return ret;
+  };
+
+  getObjectInfo = (fixture) => {
+    let id = fixture.GetBody().GetUserData().id;
+    let uniquename = fixture.GetBody().GetUserData().uniquename;
+    let x = Math.round(fixture.GetBody().GetPosition().x * this.scale);
+    let y = Math.round(fixture.GetBody().GetPosition().y * this.scale);
+    let r = Math.round(fixture.GetBody().GetAngle() * 100) / 100;
+    let objwidth = Math.round(fixture.GetBody().GetUserData().width);
+    let objheight = Math.round(fixture.GetBody().GetUserData().height);
+
+    let object = {
+      id: id,
+      uniquename: uniquename,
+      x: x,
+      y: y,
+      r: r,
+      objwidth: objwidth,
+      objheight: objheight,
+    };
+
+    return object;
   };
 
   // Method that takes the key code and determines the linear velocity of depending on the keycode
@@ -465,7 +509,7 @@ class WebRacer extends Game {
     let objid = "shell";
     let uniquename = player.player.GetBody().GetUserData().uniquename;
 
-    let shell = new defineDCB(
+    let shell = new createLib.defineDCB(
       density,
       friction,
       restitution,
@@ -538,5 +582,6 @@ class WebRacer extends Game {
   };
 }
 
-// Exporting the two Game classes, Box2D and Easel
-export { WebRacer };
+module.exports = {
+  WebRacer: WebRacer,
+};

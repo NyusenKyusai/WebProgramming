@@ -71,3 +71,7 @@ socket.on("returntolobby", () => {
   gamepanel.classList.remove("active");
   lobbypanel.classList.add("active");
 });
+
+socket.on("objectData", (data) => {
+  console.log(data);
+});
