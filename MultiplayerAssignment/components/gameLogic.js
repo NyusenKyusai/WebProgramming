@@ -269,34 +269,17 @@ class WebRacer extends Game {
 
     for (let b = this.world.GetBodyList(); b; b = b.GetNext()) {
       for (let f = b.GetFixtureList(); f; f = f.GetNext()) {
-        if (this.gameStart) {
-          let objectdata = this.getObjectInfo(f);
+        let objectdata = this.getObjectInfo(f);
 
-          ret.push({
-            id: objectdata.id,
-            uniquename: objectdata.uniquename,
-            x: objectdata.x,
-            y: objectdata.y,
-            r: objectdata.r,
-            objwidth: objectdata.objwidth,
-            objheight: objectdata.objheight,
-          });
-        } else if (
-          f.GetBody().GetUserData().id == "player" ||
-          f.GetBody().GetUserData().id == "shell"
-        ) {
-          let objectdata = this.getObjectInfo(f);
-
-          ret.push({
-            id: objectdata.id,
-            uniquename: objectdata.uniquename,
-            x: objectdata.x,
-            y: objectdata.y,
-            r: objectdata.r,
-            objwidth: objectdata.objwidth,
-            objheight: objectdata.objheight,
-          });
-        }
+        ret.push({
+          id: objectdata.id,
+          uniquename: objectdata.uniquename,
+          x: objectdata.x,
+          y: objectdata.y,
+          r: objectdata.r,
+          objwidth: objectdata.objwidth,
+          objheight: objectdata.objheight,
+        });
       }
     }
 
