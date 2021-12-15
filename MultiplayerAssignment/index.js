@@ -14,6 +14,8 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const Box2D = require("box2dweb-commonjs").Box2D;
 const { count } = require("console");
+const usefulFunctions = require("./components/usefulFunctions.js");
+const { b2Vec2 } = require("./components/shortcuts.js");
 
 app.use(express.static("public"));
 app.use("/js", express.static(__dirname + "public/js"));
@@ -40,6 +42,33 @@ racerContact.PostSolve = (contact, impulse) => {
   let fixB = contact.GetFixtureB().GetBody().GetUserData();
 };
 
+racerContact.EndContact = (contact) => {
+  let fixA = contact.GetFixtureA().GetBody().GetUserData();
+  let fixB = contact.GetFixtureB().GetBody().GetUserData();
+
+  if (fixA.id == "player" && fixB.id == "sensor") {
+    if (fixB.uniquename == "start") {
+      let xVelocity = contact.GetFixtureA().GetBody().GetLinearVelocity().x;
+
+      let index = mygame.findPlayer(mygame.player, fixA.uniquename);
+
+      if (xVelocity > 0) {
+        mygame.player[index].moveObject.start = false;
+      }
+    }
+  } else if (fixB.id == "player" && fixA.id == "sensor") {
+    if (fixA.uniquename == "start") {
+      let xVelocity = contact.GetFixtureB().GetBody().GetLinearVelocity().x;
+
+      let index = mygame.findPlayer(mygame.player, fixB.uniquename);
+
+      if (xVelocity > 0) {
+        mygame.player[index].moveObject.start = false;
+      }
+    }
+  }
+};
+
 racerContact.BeginContact = (contact) => {
   // Getting Fixture A and Fixture B's userdata
   let fixA = contact.GetFixtureA().GetBody().GetUserData();
@@ -49,35 +78,25 @@ racerContact.BeginContact = (contact) => {
     if (fixB.uniquename == "start") {
       let index = mygame.findPlayer(mygame.player, fixA.uniquename);
 
-      let condition = mygame.player[index].moveObject.start;
+      mygame.player[index].moveObject.start = true;
 
-      if (condition) {
-        mygame.player[index].moveObject.start = false;
-      } else {
-        mygame.player[index].moveObject.start = true;
-      }
-
-      //console.log(mygame.player[index].moveObject.start);
+      console.log(mygame.player[index].moveObject.start);
     }
     if (fixB.uniquename == "finish") {
       let index = mygame.findPlayer(mygame.player, fixA.uniquename);
 
-      let condition = mygame.player[index].moveObject.finish;
-
-      if (condition) {
-        mygame.player[index].moveObject.finish = false;
-      } else {
-        mygame.player[index].moveObject.finish = true;
-      }
+      mygame.player[index].moveObject.finish = true;
 
       if (
         mygame.player[index].moveObject.start &&
         mygame.player[index].moveObject.finish
       ) {
         mygame.podium.push(fixA.uniquename);
+
+        mygame.player[index].moveObject.finished = true;
       }
 
-      //console.log(mygame.player[index].moveObject.finish);
+      // console.log(mygame.player[index].moveObject.finish);
     }
 
     if (fixB.uniquename == "powerUp") {
@@ -99,7 +118,7 @@ racerContact.BeginContact = (contact) => {
         mygame.player[index].moveObject.start = true;
       }
 
-      //console.log(mygame.player[index].moveObject.start);
+      console.log(mygame.player[index].moveObject.start);
     }
     if (fixA.uniquename == "finish") {
       let index = mygame.findPlayer(mygame.player, fixB.uniquename);
@@ -117,9 +136,9 @@ racerContact.BeginContact = (contact) => {
         mygame.player[index].moveObject.finish
       ) {
         mygame.podium.push(fixB.uniquename);
-      }
 
-      //console.log(mygame.player[index].moveObject.finish);
+        mygame.player[index].moveObject.finished = true;
+      }
     }
   }
   if (fixA.uniquename == "powerUp") {
@@ -164,9 +183,10 @@ io.on("connection", (socket) => {
   console.log(socket.id + " connected to Room " + counter);
 
   connections.push({ socket: socket.id, nickname: "Anon" });
+  io.to(socket.id).emit("socketID", socket.id);
   io.sockets.emit("connectionlist", connections);
 
-  console.log(connections);
+  //console.log(connections);
   //console.log(rooms);
 
   socket.on("disconnect", () => {
@@ -221,6 +241,24 @@ io.on("connection", (socket) => {
     //console.log(regRooms);
 
     //console.log(connections);
+  });
+
+  socket.on("keydown", (key) => {
+    let index = usefulFunctions.findIndexRoom(rooms, socket.id);
+
+    // console.log(index);
+
+    if (index.i == 0) {
+      mygame.handleKeyDown(key, index.r);
+    }
+  });
+
+  socket.on("keyup", (key) => {
+    let index = usefulFunctions.findIndexRoom(rooms, socket.id);
+
+    if (index.i == 0) {
+      mygame.handleKeyUp(key, index.r);
+    }
   });
 });
 

@@ -8,8 +8,17 @@ let lobbypanel = document.getElementById("lobbypanel");
 let gamepanel = document.getElementById("gamepanel");
 let lobbylist = document.getElementById("roomplayers");
 let nicknameSpan = document.getElementById("nicknameSpan");
+let finishedPanel = document.getElementById("finishedPanel");
+let podium = document.getElementById("podium");
 let connections = [];
 let roomMembers = [];
+let playing = false;
+let roomfull = false;
+let interval;
+let viewportInit;
+let viewportAnimateComplete;
+let socketID;
+let playerName;
 
 let easelCan, easelCTX, loader, stage, stageHeight, stageWidth;
 
@@ -17,10 +26,11 @@ let timestamps = [];
 let datastamps = [];
 let objs = [];
 
-let staticObjs = ["sensor", "wall"];
-
 let framerate = 60;
 let R2D = 180 / Math.PI;
+
+let playerX = 0;
+let playerY = 0;
 
 const makeBitmap = (loaderImg, b2x, b2y, yadjust = 0) => {
   let theImage = new createjs.Bitmap(loaderImg);
@@ -87,9 +97,12 @@ const init = () => {
     { src: "./assets/start.png", id: "start" },
     { src: "./assets/finish.png", id: "finish" },
     { src: "./assets/powerUp.png", id: "powerUp" },
+    { src: "./assets/boost.wav", id: "boost" },
   ];
 
   loader = new createjs.LoadQueue(false);
+  loader.installPlugin(createjs.Sound);
+  createjs.Sound.alternateExtensions = ["ogg"];
   loader.addEventListener("complete", handleComplete);
   loader.loadManifest(manifest, true);
 };
@@ -117,107 +130,155 @@ const handleComplete = () => {
       //console.log(data);
 
       if (!initialised && data[i].id == "wall") {
-        objs.push(
-          makeBitmap(
+        objs.push({
+          bitmap: makeBitmap(
             loader.getResult("barriers"),
             data[i].objwidth,
             data[i].objheight
-          )
-        );
-        stage.addChild(objs[objs.length - 1]);
-        objs[objs.length - 1].x = data[i].x;
-        objs[objs.length - 1].y = data[i].y;
-        objs[objs.length - 1].rotation = data[i].r * R2D;
+          ),
+          uniquename: data[i].uniquename,
+        });
+        stage.addChild(objs[objs.length - 1].bitmap);
+        objs[objs.length - 1].bitmap.x = data[i].x;
+        objs[objs.length - 1].bitmap.y = data[i].y;
+        objs[objs.length - 1].bitmap.rotation = data[i].r * R2D;
       }
 
       if (!initialised && data[i].id == "sensor") {
         if (data[i].uniquename == "start") {
-          objs.push(
-            makeBitmap(
+          objs.push({
+            bitmap: makeBitmap(
               loader.getResult("start"),
               data[i].objwidth,
               data[i].objheight
-            )
-          );
+            ),
+            uniquename: data[i].uniquename,
+          });
         }
 
         if (data[i].uniquename == "finish") {
-          objs.push(
-            makeBitmap(
+          objs.push({
+            bitmap: makeBitmap(
               loader.getResult("finish"),
               data[i].objwidth,
               data[i].objheight
-            )
-          );
+            ),
+            uniquename: data[i].uniquename,
+          });
         }
 
         if (data[i].uniquename == "powerUp") {
-          objs.push(
-            makeBitmap(
+          objs.push({
+            bitmap: makeBitmap(
               loader.getResult("powerUp"),
               data[i].objwidth,
               data[i].objheight
-            )
-          );
+            ),
+            uniquename: data[i].uniquename,
+          });
         }
-        stage.addChild(objs[objs.length - 1]);
-        objs[objs.length - 1].x = data[i].x;
-        objs[objs.length - 1].y = data[i].y;
-        objs[objs.length - 1].rotation = data[i].r * R2D;
+        stage.addChild(objs[objs.length - 1].bitmap);
+        objs[objs.length - 1].bitmap.x = data[i].x;
+        objs[objs.length - 1].bitmap.y = data[i].y;
+        objs[objs.length - 1].bitmap.rotation = data[i].r * R2D;
       }
 
       if (!initialised && data[i].id == "player") {
         if (data[i].uniquename == "player1") {
-          objs.push(
-            makeBitmap(
+          objs.push({
+            bitmap: makeBitmap(
               loader.getResult("player1"),
               data[i].objwidth,
               data[i].objheight
-            )
-          );
+            ),
+            uniquename: data[i].uniquename,
+          });
         }
 
         if (data[i].uniquename == "player2") {
-          objs.push(
-            makeBitmap(
+          objs.push({
+            bitmap: makeBitmap(
               loader.getResult("player2"),
               data[i].objwidth,
               data[i].objheight
-            )
-          );
+            ),
+            uniquename: data[i].uniquename,
+          });
         }
 
         if (data[i].uniquename == "player3") {
-          objs.push(
-            makeBitmap(
+          objs.push({
+            bitmap: makeBitmap(
               loader.getResult("player3"),
               data[i].objwidth,
               data[i].objheight
-            )
-          );
+            ),
+            uniquename: data[i].uniquename,
+          });
         }
 
         if (data[i].uniquename == "player4") {
-          objs.push(
-            makeBitmap(
+          objs.push({
+            bitmap: makeBitmap(
               loader.getResult("player4"),
               data[i].objwidth,
               data[i].objheight
-            )
-          );
+            ),
+            uniquename: data[i].uniquename,
+          });
         }
-        stage.addChild(objs[objs.length - 1]);
-        objs[objs.length - 1].x = data[i].x;
-        objs[objs.length - 1].y = data[i].y;
-        objs[objs.length - 1].rotation = data[i].r * R2D;
+        stage.addChild(objs[objs.length - 1].bitmap);
+        objs[objs.length - 1].bitmap.x = data[i].x;
+        objs[objs.length - 1].bitmap.y = data[i].y;
+        objs[objs.length - 1].bitmap.rotation = data[i].r * R2D;
       }
 
-      if (data[i].id == "player" || data[i].id == "shell") {
-        // console.log(objs[i]);
-        // console.log(data[i]);
-        objs[i].x = data[i].x;
-        objs[i].y = data[i].y;
-        objs[i].rotation = data[i].r * R2D;
+      if (data[i].id == "player") {
+        let index = functions.findIndexBitmap(objs, data[i].uniquename);
+
+        objs[index].bitmap.x = data[i].x;
+        objs[index].bitmap.y = data[i].y;
+        objs[index].bitmap.rotation = data[i].r * R2D;
+
+        if (playerName == data[i].uniquename) {
+          playerX = data[i].x;
+          playerY = data[i].y;
+        }
+      }
+
+      if (data[i].id == "shell") {
+        let index = functions.findIndexBitmap(objs, data[i].uniquename);
+
+        if (index == -1) {
+          objs.push({
+            bitmap: makeBitmap(
+              loader.getResult("shell"),
+              data[i].objwidth,
+              data[i].objheight
+            ),
+            uniquename: data[i].uniquename,
+          });
+
+          // console.log(objs[i]);
+          // console.log(data[i]);
+          objs[objs.length - 1].bitmap.x = data[i].x;
+          objs[objs.length - 1].bitmap.y = data[i].y;
+          objs[objs.length - 1].bitmap.rotation = data[i].r * R2D;
+
+          //console.log(objs[index]);
+        }
+
+        if (index != -1) {
+          // console.log(objs[index]);
+
+          objs[index].bitmap.x = data[i].x;
+          objs[index].bitmap.y = data[i].y;
+          objs[index].bitmap.rotation = data[i].r * R2D;
+        }
+
+        // objs.forEach((object) => {
+        //   console.log(object.uniquename);
+        // });
       }
     }
 
@@ -293,9 +354,96 @@ socket.on("registered", () => {
 socket.on("roomfull", () => {
   lobbypanel.classList.remove("active");
   gamepanel.classList.add("active");
+
+  let index = roomMembers.findIndex((element) => element == socketID);
+
+  switch (index) {
+    case 0:
+      playerName = "player1";
+      break;
+    case 1:
+      playerName = "player2";
+      break;
+    case 2:
+      playerName = "player3";
+      break;
+    case 3:
+      playerName = "player4";
+      break;
+  }
+
+  roomfull = true;
+
+  playing = true;
+
+  functions.followPlayer(
+    viewportInit,
+    viewportAnimateComplete,
+    playerX,
+    playerY
+  );
+
+  setTimeout(function () {
+    viewportAnimateComplete = true;
+  }, 2000);
+
+  interval = setInterval(function () {
+    functions.followPlayer(
+      viewportInit,
+      viewportAnimateComplete,
+      playerX,
+      playerY
+    );
+  }, 1000 / framerate);
+
+  viewportInit = true;
+
+  // setTimeout(function () {
+  //   viewportAnimateComplete = true;
+  // }, 2000);
 });
 
 socket.on("returntolobby", () => {
   gamepanel.classList.remove("active");
-  lobbypanel.classList.add("active");
+  finishedPanel.classList.remove("active");
+
+  if (roomfull) {
+    lobbypanel.classList.add("active");
+    roomfull = false;
+  }
+
+  playing = false;
+});
+
+$(document).keydown((e) => {
+  if (playing) {
+    socket.emit("keydown", e.key);
+  }
+});
+
+$(document).keyup((e) => {
+  if (playing) {
+    socket.emit("keyup", e.key);
+  }
+});
+
+socket.on("racefinished", (podiumServer) => {
+  let outputHTML = functions.createPodiumHTML(
+    roomMembers,
+    podiumServer,
+    connections
+  );
+
+  podium.innerHTML = outputHTML;
+
+  gamepanel.classList.remove("active");
+  finishedPanel.classList.add("active");
+});
+
+socket.on("socketID", (id) => {
+  socketID = id;
+});
+
+socket.on("boost", () => {
+  createjs.Sound.play("boost");
 });

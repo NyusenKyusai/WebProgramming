@@ -250,7 +250,7 @@ const followBird = () => {
     if (topPosition < topLimitMin) topPosition = topLimitMin;
     if (topPosition > topLimitMax) topPosition = topLimitMax;
 
-    $("#easelcan").css({ top: -topPosition, transition: "left 34ms" });
+    $("#easelcan").css({ top: -topPosition, transition: "top 34ms" });
 
     let birdVelocity = Math.abs(angryBird.GetBody().GetLinearVelocity().x) / 10;
 

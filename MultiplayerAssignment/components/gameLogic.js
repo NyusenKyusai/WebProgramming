@@ -3,6 +3,7 @@ const shortcut = require("./shortcuts.js");
 const createLib = require("./classLib.js");
 const handlers = require("./eventHandlers.js");
 const data = require("./gameData.json");
+const { b2Vec2 } = require("./shortcuts.js");
 
 // Game class that has main reusable functions
 class Game {
@@ -222,24 +223,15 @@ class WebRacer extends Game {
     //console.log(player[0].GetBody().GetAngle());
     //console.log(Math.tan(Math.PI));
     //console.log(this.podium);
-    if (this.podium.length == 1) {
-      //console.log(this.podium);
+    if (this.podium.length == 3) {
+      this.io.emit("racefinished", this.podium);
+
+      this.podium = [];
     }
   };
 
   // Method to get the body in the item list that is the player
   getPlayer = () => {
-    let moveObject = {
-      left: false,
-      right: false,
-      accel: false,
-      reverse: false,
-      shoot: false,
-      start: false,
-      finish: false,
-      topSpeed: 10,
-    };
-
     // Initialise the player variable
     let player = [];
 
@@ -248,6 +240,18 @@ class WebRacer extends Game {
 
     // For each loop over the item list
     for (let i = 0; i < this.itemList.length; i++) {
+      let moveObject = {
+        left: false,
+        right: false,
+        accel: false,
+        reverse: false,
+        shoot: false,
+        start: false,
+        finish: false,
+        finished: false,
+        topSpeed: 7,
+      };
+
       if (this.itemList[i].userdata.id === "player") {
         // Setting the player to the item
         player.push({
@@ -312,25 +316,25 @@ class WebRacer extends Game {
   move = (player) => {
     //console.log(object);
     // If the keycode is left and allowMove is true
-    if (player.moveObject.left) {
+    if (player.moveObject.left && !player.moveObject.finished) {
       // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
-      this.setAngularVelocity(player.player, -1);
+      this.setAngularVelocity(player.player, -2);
       // If the keycode is right and allowMove is true
     }
 
-    if (player.moveObject.right) {
+    if (player.moveObject.right && !player.moveObject.finished) {
       // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-      this.setAngularVelocity(player.player, 1);
+      this.setAngularVelocity(player.player, 2);
       // If the keycode is space bar and allowMove is true
     }
 
-    if (player.moveObject.accel) {
+    if (player.moveObject.accel && !player.moveObject.finished) {
       // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
       this.applyImpulse(player.player, 1, player.moveObject.topSpeed);
       //console.log(player.moveObject.topSpeed);
     }
 
-    if (player.moveObject.reverse) {
+    if (player.moveObject.reverse && !player.moveObject.finished) {
       // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
       this.applyImpulse(player.player, -1, player.moveObject.topSpeed);
     }
@@ -402,67 +406,72 @@ class WebRacer extends Game {
   };
 
   // Method that calls the move method and sends in the keycode
-  handleKeyDown = (e) => {
+  handleKeyDown = (key, index) => {
+    let currentPlayer = this.player[index];
+
+    //console.log(currentPlayer);
     // Calls the getPlayer method and setting it to a variable
 
-    this.player.forEach((player) => {
-      // If the keycode is left and allowMove is true
-      if (e.keyCode == 65) {
-        // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
-        player.moveObject.left = true;
-        // If the keycode is right and allowMove is true
-      } else if (e.keyCode == 68) {
-        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-        player.moveObject.right = true;
-        // If the keycode is space bar and allowMove is true
-      } else if (e.keyCode == 87) {
-        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-        player.moveObject.accel = true;
-      } else if (e.keyCode == 83) {
-        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-        player.moveObject.reverse = true;
-      }
-    });
+    // If the keycode is left and allowMove is true
+    if (key == "a") {
+      // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
+      currentPlayer.moveObject.left = true;
+      // If the keycode is right and allowMove is true
+    } else if (key == "d") {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      currentPlayer.moveObject.right = true;
+      // If the keycode is space bar and allowMove is true
+    } else if (key == "w") {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      currentPlayer.moveObject.accel = true;
+    } else if (key == "s") {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      currentPlayer.moveObject.reverse = true;
+    } else if (key == "Enter") {
+      this.handlePowerUp(index);
+    }
   };
 
   // Method that calls the stopMove method and sends in the keycode
-  handleKeyUp = (e) => {
-    this.player.forEach((player) => {
-      // If the keycode is left and allowMove is true
-      if (e.keyCode == 65) {
-        // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
-        player.moveObject.left = false;
-        this.stopMove(player);
-        // If the keycode is right and allowMove is true
-      } else if (e.keyCode == 68) {
-        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-        player.moveObject.right = false;
-        this.stopMove(player);
-        // If the keycode is space bar and allowMove is true
-      } else if (e.keyCode == 87) {
-        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-        player.moveObject.accel = false;
-      } else if (e.keyCode == 83) {
-        // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
-        player.moveObject.reverse = false;
-      }
-    });
+  handleKeyUp = (key, index) => {
+    let currentPlayer = this.player[index];
+
+    // If the keycode is left and allowMove is true
+    if (key == "a") {
+      // Setting the linear velocity of player to going left while keeping the linear velocity in the y direction
+      currentPlayer.moveObject.left = false;
+      this.stopMove(currentPlayer);
+      // If the keycode is right and allowMove is true
+    } else if (key == "d") {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      currentPlayer.moveObject.right = false;
+      this.stopMove(currentPlayer);
+      // If the keycode is space bar and allowMove is true
+    } else if (key == "w") {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      currentPlayer.moveObject.accel = false;
+    } else if (key == "s") {
+      // Setting the linear velocity of player to going right while keeping the linear velocity in the y direction
+      currentPlayer.moveObject.reverse = false;
+    }
   };
 
   // Method to handle mouse down
-  handleMouseDown = () => {
-    this.player.forEach((player) => {
-      if (player.moveObject.item == "boost") {
-        player.moveObject.topSpeed = 3;
+  handlePowerUp = (index) => {
+    let currentPlayer = this.player[index];
 
-        player.moveObject.item = false;
-        this.createTimeout("boost", player);
-      } else if (player.moveObject.item == "shell") {
-        this.shootShell(player);
+    if (currentPlayer.moveObject.item == "boost") {
+      currentPlayer.moveObject.topSpeed = 2;
 
-        player.moveObject.item = false;
-      }
-    });
+      this.io.sockets.emit("boost");
+
+      currentPlayer.moveObject.item = false;
+      this.createTimeout("boost", currentPlayer);
+    } else if (currentPlayer.moveObject.item == "shell") {
+      this.shootShell(currentPlayer);
+
+      currentPlayer.moveObject.item = false;
+    }
   };
 
   getShellPosition = (playerBody) => {
@@ -490,7 +499,7 @@ class WebRacer extends Game {
       shellPosition.direction.y * this.scale;
     let radius = 2.5;
     let objid = "shell";
-    let uniquename = player.player.GetBody().GetUserData().uniquename;
+    let uniquename = player.player.GetBody().GetUserData().uniquename + "Shell";
 
     let shell = new createLib.defineDCB(
       density,
@@ -525,7 +534,7 @@ class WebRacer extends Game {
     switch (condition) {
       case "boost":
         setTimeout(function () {
-          player.moveObject.topSpeed = 10;
+          player.moveObject.topSpeed = 7;
         }, 1000);
         break;
       case "shell":
@@ -558,7 +567,7 @@ class WebRacer extends Game {
     if (player.moveObject.item == 1) {
       player.moveObject.item = "boost";
     } else {
-      player.moveObject.item = "shell";
+      player.moveObject.item = "boost";
     }
 
     console.log(player.moveObject.item);
