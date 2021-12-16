@@ -1,3 +1,4 @@
+// Requiring the box2d module the Node way
 const Box2D = require("box2dweb-commonjs").Box2D;
 
 /****

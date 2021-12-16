@@ -1,5 +1,6 @@
 "use strict";
 
+// Requiring the Box2D Shortcuts
 const shortcuts = require("./shortcuts.js");
 
 // Setting the variable to a shortcut
@@ -13,6 +14,7 @@ b2Listener.PreSolve = (contact, oldManifold) => {};
 
 /*****
  * Mouse Controls class
+ * Not used in the NodeJS implementation
  */
 
 class mouseHandler {
@@ -41,6 +43,7 @@ class keyboardHandler {
   }
 }
 
+// Exporting it using the required feature instead of import for NodeJS
 module.exports = {
   b2Listener: b2Listener,
   mouseHandler: mouseHandler,

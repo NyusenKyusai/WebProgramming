@@ -1,4 +1,4 @@
-// Importing the Box2D Shortcuts
+// Requiring the Box2D Shortcuts
 const shortcut = require("./shortcuts.js");
 
 // Main class for creating Box2D bodies
@@ -73,7 +73,7 @@ class defineSB extends defineBody {
     this.fixDef.shape.SetAsBox(width / scale, height / scale);
     // Creating the object and setting it into the world
     this.createObj(world);
-    // Assigning the userdata of the object to the id, uniquename, and level it belongs to
+    // Assigning the userdata of the object to the id, uniquename, height, and width
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
     this.changeUserData("height", height);
@@ -98,14 +98,14 @@ class defineDB extends defineBody {
   ) {
     //Getting the main class's assignments that all bodies have
     super(density, friction, restitution, x, y, scale, world);
-    // Setting type of body to static
+    // Setting type of body to dynamic
     this.bodyDef.type = shortcut.b2Body.b2_dynamicBody;
     // Setting the shape of the fixture as well as it's width and height
     this.fixDef.shape = new shortcut.b2PolygonShape();
     this.fixDef.shape.SetAsBox(width / scale, height / scale);
     // Creating the object and setting it into the world
     this.createObj(world);
-    // Assigning the userdata of the object to the id, uniquename, and level it belongs to
+    // Assigning the userdata of the object to the id, uniquename, height, and width
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
     this.changeUserData("height", height);
@@ -126,17 +126,23 @@ class defineDCB extends defineBody {
     scale,
     world
   ) {
+    //Getting the main class's assignments that all bodies have
     super(density, friction, restitution, x, y, scale, world);
+    // Setting type of body to dynamic
     this.bodyDef.type = shortcut.b2Body.b2_dynamicBody;
+    // Setting the shape of the fixture as well as it's radius
     this.fixDef.shape = new shortcut.b2CircleShape(r / scale);
+    // Creating the object and setting it into the world
     this.createObj(world);
     this.changeUserData("id", objid);
     this.changeUserData("uniquename", uniquename);
+    // Assigning the userdata of the object to the id, uniquename, height, and width as double the radius
     this.changeUserData("height", r * 2);
     this.changeUserData("width", r * 2);
   }
 }
 
+// Exporting it using the required feature instead of import for NodeJS
 module.exports = {
   defineSB: defineSB,
   defineDB: defineDB,
